@@ -93,12 +93,6 @@ export default function Home() {
           <button className={styles.button} onClick={() => navigate('/create-recipe')}>
             Create Recipe
           </button>
-          <button 
-            className={`${styles.button} ${styles.logoutButton}`}
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
         </div>
       </div>
 
