@@ -6,6 +6,7 @@ import Signup from './pages/Signup/Signup';
 import Home from './pages/Home';
 import CreateRecipe from './pages/CreateRecipe';
 import EditProfile from './pages/EditProfile';
+import RecipeDetail from './pages/RecipeDetail';
 import NavBar from './components/NavBar';
 import './App.css'
 
@@ -38,6 +39,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EditProfile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/recipe/:id" 
+            element={
+              <ProtectedRoute>
+                <RecipeDetail />
               </ProtectedRoute>
             } 
           />
