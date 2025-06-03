@@ -6,8 +6,9 @@ import styles from './RecipeForm.module.css';
 
 const LOCAL_RECIPES_KEY = 'dev_recipes';
 const LOCAL_PROFILE_KEY = 'dev_profile';
+const LOCAL_VERSIONS_KEY = 'dev_recipe_versions';
 
-export default function RecipeForm({ forkedRecipe }) {
+export default function RecipeForm({ forkedRecipe, recipeId }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ export default function RecipeForm({ forkedRecipe }) {
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [originalRecipe, setOriginalRecipe] = useState(null);
 
   useEffect(() => {
     if (forkedRecipe) {
@@ -37,8 +39,28 @@ export default function RecipeForm({ forkedRecipe }) {
         tags: forkedRecipe.tags?.join(', ') || '',
         image: forkedRecipe.image || ''
       });
+    } else if (recipeId) {
+      // Load existing recipe for editing
+      const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
+      const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+      const recipe = recipes.find(r => r.id === recipeId);
+      
+      if (recipe) {
+        setOriginalRecipe(recipe);
+        setFormData({
+          title: recipe.title,
+          cuisine: recipe.cuisine,
+          prepTime: recipe.prepTime,
+          cookTime: recipe.cookTime,
+          servings: recipe.servings,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
+          tags: recipe.tags?.join(', ') || '',
+          image: recipe.image || ''
+        });
+      }
     }
-  }, [forkedRecipe]);
+  }, [forkedRecipe, recipeId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,7 +101,7 @@ export default function RecipeForm({ forkedRecipe }) {
     try {
       const recipeData = {
         ...formData,
-        id: forkedRecipe?.id || Date.now().toString(),
+        id: forkedRecipe?.id || recipeId || Date.now().toString(),
         author: user.name,
         authorAvatar: user.avatar,
         createdAt: new Date().toISOString(),
@@ -97,7 +119,26 @@ export default function RecipeForm({ forkedRecipe }) {
       // In dev mode, store in localStorage
       const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
       const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
-      recipes.unshift(recipeData);
+      
+      if (recipeId) {
+        // Update existing recipe
+        const recipeIndex = recipes.findIndex(r => r.id === recipeId);
+        if (recipeIndex !== -1) {
+          // Store the old version in version history
+          const oldVersion = recipes[recipeIndex];
+          const storedVersions = localStorage.getItem(`${LOCAL_VERSIONS_KEY}_${recipeId}`);
+          const versions = storedVersions ? JSON.parse(storedVersions) : [];
+          versions.unshift(oldVersion);
+          localStorage.setItem(`${LOCAL_VERSIONS_KEY}_${recipeId}`, JSON.stringify(versions));
+          
+          // Update the recipe
+          recipes[recipeIndex] = recipeData;
+        }
+      } else {
+        // Add new recipe
+        recipes.unshift(recipeData);
+      }
+      
       localStorage.setItem(LOCAL_RECIPES_KEY, JSON.stringify(recipes));
 
       // Store profile info in localStorage (dev mode)
@@ -118,7 +159,7 @@ export default function RecipeForm({ forkedRecipe }) {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>
-        {forkedRecipe ? 'Fork Recipe' : 'Create New Recipe'}
+        {forkedRecipe ? 'Fork Recipe' : recipeId ? 'Edit Recipe' : 'Create New Recipe'}
       </h1>
       {forkedRecipe && (
         <p className={styles.forkInfo}>
@@ -279,7 +320,7 @@ export default function RecipeForm({ forkedRecipe }) {
             className={styles.submitButton}
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Publishing...' : forkedRecipe ? 'Publish Fork' : 'Create Recipe'}
+            {isSubmitting ? 'Publishing...' : forkedRecipe ? 'Publish Fork' : recipeId ? 'Save Changes' : 'Create Recipe'}
           </button>
           <button
             type="button"

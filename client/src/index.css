@@ -1,11 +1,9 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Roboto Mono', monospace, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #232323;
+  background-color: #f7fafc;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,43 +13,57 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #ff9800;
   text-decoration: inherit;
+  transition: color 0.2s ease;
 }
 a:hover {
-  color: #535bf2;
+  color: #f57c00;
 }
 
 body {
   margin: 0;
   display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: linear-gradient(120deg, #fdf6ee 0%, #f7fafc 100%);
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 2.5rem;
   line-height: 1.1;
+  color: #ff9800;
+  font-family: 'Judson', serif;
+}
+
+h2, h3, h4, h5, h6 {
+  font-family: 'Judson', serif;
+  color: #232323;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: 6px;
+  border: none;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-family: 'Roboto Mono', monospace;
+  background-color: #ff9800;
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background-color 0.2s ease;
 }
 button:hover {
-  border-color: #646cff;
+  background-color: #f57c00;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid #ff9800;
+  outline-offset: 2px;
+}
+
+input, textarea, select {
+  font-family: 'Roboto Mono', monospace;
 }
 
 @media (prefers-color-scheme: light) {

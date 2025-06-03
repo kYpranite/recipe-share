@@ -1,25 +1,33 @@
 .container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
 .recipeHeader {
   margin-bottom: 2rem;
-  text-align: center;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
 }
 
 .recipeHeader h1 {
-  color: #2c3e50;
+  color: #ff9800;
   margin-bottom: 1rem;
   font-size: 2.5rem;
+  font-weight: 600;
+  font-family: 'Judson', serif;
 }
 
 .authorInfo {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
 }
 
 .authorAvatar {
@@ -34,6 +42,7 @@
   font-weight: 600;
   color: #ff9800;
   font-size: 1.1rem;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .recipeImage {
@@ -43,6 +52,7 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: white;
 }
 
 .recipeImage img {
@@ -60,6 +70,7 @@
   justify-content: center;
   color: #666;
   font-size: 1.2rem;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .recipeInfo {
@@ -67,9 +78,10 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: #fff8e1;
-  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .infoItem {
@@ -81,16 +93,23 @@
 .label {
   font-weight: 600;
   color: #ff9800;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .ingredients {
   margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .ingredients h2 {
-  color: #2c3e50;
+  color: #232323;
   margin-bottom: 1rem;
   font-size: 1.8rem;
+  font-weight: 600;
+  font-family: 'Judson', serif;
 }
 
 .ingredients ul {
@@ -102,21 +121,29 @@
   padding: 0.5rem 0;
   border-bottom: 1px solid #eee;
   color: #333;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .instructions {
   margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .instructions h2 {
-  color: #2c3e50;
+  color: #232323;
   margin-bottom: 1rem;
   font-size: 1.8rem;
+  font-weight: 600;
+  font-family: 'Judson', serif;
 }
 
 .instructionsText {
   line-height: 1.6;
   color: #333;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .instructionsText p {
@@ -125,12 +152,18 @@
 
 .tags {
   margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tags h3 {
-  color: #2c3e50;
+  color: #232323;
   margin-bottom: 1rem;
   font-size: 1.4rem;
+  font-weight: 600;
+  font-family: 'Judson', serif;
 }
 
 .tagList {
@@ -146,22 +179,29 @@
   border-radius: 20px;
   font-size: 0.9rem;
   border: 1px solid #ffecb3;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .actions {
   display: flex;
   gap: 1rem;
-  justify-content: center;
+  justify-content: flex-start;
   margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.editButton, .backButton {
+.editButton, .backButton, .forkButton {
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-weight: 500;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .editButton {
@@ -182,11 +222,21 @@
   background-color: #d5d5d5;
 }
 
+.forkButton {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.forkButton:hover {
+  background-color: #45a049;
+}
+
 .loading {
   text-align: center;
   padding: 2rem;
   color: #666;
   font-size: 1.2rem;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .error {
@@ -194,20 +244,159 @@
   padding: 2rem;
   color: #d32f2f;
   font-size: 1.2rem;
+  background-color: #ffebee;
+  border-radius: 12px;
+  margin: 1rem 0;
+  font-family: 'Roboto Mono', monospace;
 }
 
-.forkButton {
-  padding: 0.8rem 1.5rem;
+.versionHistory {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.versionHistory h2 {
+  color: #232323;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  font-family: 'Judson', serif;
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.versionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.versionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.versionAuthor {
+  font-weight: 600;
+  color: #ff9800;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.versionDate {
+  font-size: 0.9rem;
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.versionActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.viewVersionButton, .revertButton {
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #4CAF50;
-  color: white;
-  margin-right: 1rem;
+  font-family: 'Roboto Mono', monospace;
 }
 
-.forkButton:hover {
-  background-color: #45a049;
+.viewVersionButton {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.viewVersionButton:hover {
+  background-color: #d5d5d5;
+}
+
+.revertButton {
+  background-color: #ff9800;
+  color: white;
+}
+
+.revertButton:hover {
+  background-color: #f57c00;
+}
+
+.interactionBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.ratings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.averageRating {
+  display: flex;
+  align-items: center;
+}
+
+.ratingValue {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ff9800;
+  margin-right: 0.75rem;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.userRating {
+  display: flex;
+  align-items: center;
+}
+
+.ratingLabel {
+  margin-right: 0.75rem;
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .recipeHeader h1 {
+    font-size: 2rem;
+  }
+
+  .recipeImage {
+    height: 300px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .editButton, .backButton, .forkButton {
+    width: 100%;
+  }
+
+  .interactionBar {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
 } 

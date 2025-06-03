@@ -1,0 +1,36 @@
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.star {
+  font-size: 1.8rem;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+  margin-right: 0.2rem;
+}
+
+.star:hover {
+  color: #ffb400;
+}
+
+.filled {
+  color: #ffb400;
+}
+
+.readOnly {
+  cursor: default;
+}
+
+.readOnly:hover {
+  color: #ffb400;
+}
+
+.ratingText {
+  margin-left: 0.75rem;
+  font-size: 0.9rem;
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
+} 

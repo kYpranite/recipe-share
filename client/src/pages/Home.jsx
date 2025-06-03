@@ -129,10 +129,11 @@ export default function Home() {
               trendingRecipes.map(recipe => (
                 <RecipeCard
                   key={recipe.id}
+                  id={recipe.id}
                   title={recipe.title}
                   cuisine={recipe.cuisine}
-                  author={profile?.name || recipe.author || user.name}
-                  avatar={profile?.avatar}
+                  author={recipe.author || user.name}
+                  avatar={recipe.authorAvatar || profile?.avatar}
                   instructions={recipe.instructions}
                   onView={() => navigate(`/recipe/${recipe.id}`)}
                 />
@@ -161,10 +162,11 @@ export default function Home() {
             displayRecipes.map(recipe => (
               <RecipeCard
                 key={recipe.id}
+                id={recipe.id}
                 title={recipe.title}
                 cuisine={recipe.cuisine}
-                author={profile?.name || recipe.author || user.name}
-                avatar={profile?.avatar}
+                author={recipe.author || user.name}
+                avatar={recipe.authorAvatar || profile?.avatar}
                 instructions={recipe.instructions}
                 onView={() => navigate(`/recipe/${recipe.id}`)}
               />

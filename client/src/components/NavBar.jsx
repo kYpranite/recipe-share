@@ -36,7 +36,7 @@ export default function NavBar() {
         <div className={styles.links}>
           <Link to="/home">Home</Link>
           <Link to="/create-recipe">Create Recipe</Link>
-          {user && <Link to="/my-profile">My Profile</Link>}
+          {user && <Link to="/profile">My Profile</Link>}
           {user && <Link to="/edit-profile">Edit Profile</Link>}
         </div>
         

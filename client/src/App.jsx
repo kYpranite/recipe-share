@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import CreateRecipe from './pages/CreateRecipe';
 import EditProfile from './pages/EditProfile';
 import RecipeDetail from './pages/RecipeDetail';
+import UserProfile from './pages/UserProfile';
 import NavBar from './components/NavBar';
 import './App.css'
 
@@ -36,6 +37,14 @@ function App() {
               } 
             />
             <Route 
+              path="/edit-recipe/:id" 
+              element={
+                <ProtectedRoute>
+                  <CreateRecipe />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/edit-profile" 
               element={
                 <ProtectedRoute>
@@ -48,6 +57,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RecipeDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile/:username" 
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
                 </ProtectedRoute>
               } 
             />
