@@ -15,43 +15,45 @@ function App() {
     <AuthProvider>
       <Router>
         <NavBar />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route 
-            path="/home" 
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/create-recipe" 
-            element={
-              <ProtectedRoute>
-                <CreateRecipe />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/edit-profile" 
-            element={
-              <ProtectedRoute>
-                <EditProfile />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/recipe/:id" 
-            element={
-              <ProtectedRoute>
-                <RecipeDetail />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/" element={<Navigate to="/home" replace />} />
-        </Routes>
+        <main className="main-content">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route 
+              path="/home" 
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create-recipe" 
+              element={
+                <ProtectedRoute>
+                  <CreateRecipe />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/edit-profile" 
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/recipe/:id" 
+              element={
+                <ProtectedRoute>
+                  <RecipeDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+          </Routes>
+        </main>
       </Router>
     </AuthProvider>
   );
