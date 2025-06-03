@@ -12,15 +12,12 @@ A community-driven recipe platform where users can create, edit, browse, and col
   - Profile info is saved in localStorage (dev mode)
 - **Navigation Improvements:**
   - NavBar includes links to Home, Create Recipe, My Profile, Edit Profile, and Logout
-- **Cooking Theme:**
-  - Subtle cooking icon in the NavBar
-  - Accent colors inspired by food (gold, green)
-  - Clean, inviting, and food-app-appropriate design
+
 
 ## Features
 
 - User authentication (signup/login)
-- **Premium, modern UI and navigation**
+- **Modern UI and navigation**
 - **Dynamic recipe feed (see your own recipes instantly)**
 - **Profile editing with avatar and bio**
 - Create and share recipes with detailed instructions
