@@ -2,10 +2,10 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-// Development mode flag - set to true to bypass authentication
+// set to true to bypass authentication
 const DEV_MODE = true;
 
-// Mock user data for development
+// mock user data for development
 const MOCK_USER = {
   _id: 'dev-user-id',
   name: 'Developer User',
