@@ -14,11 +14,12 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
   const [formData, setFormData] = useState({
     title: '',
     cuisine: '',
+    about: '',
     prepTime: '',
     cookTime: '',
     servings: '',
     ingredients: [''],
-    instructions: '',
+    instructions: [''],
     tags: '',
     image: ''
   });
@@ -31,11 +32,14 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
       setFormData({
         title: `${forkedRecipe.title} (Forked)`,
         cuisine: forkedRecipe.cuisine,
+        about: forkedRecipe.about || '',
         prepTime: forkedRecipe.prepTime,
         cookTime: forkedRecipe.cookTime,
         servings: forkedRecipe.servings,
         ingredients: forkedRecipe.ingredients,
-        instructions: forkedRecipe.instructions,
+        instructions: Array.isArray(forkedRecipe.instructions) 
+          ? forkedRecipe.instructions 
+          : [forkedRecipe.instructions],
         tags: forkedRecipe.tags?.join(', ') || '',
         image: forkedRecipe.image || ''
       });
@@ -50,11 +54,14 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
         setFormData({
           title: recipe.title,
           cuisine: recipe.cuisine,
+          about: recipe.about || '',
           prepTime: recipe.prepTime,
           cookTime: recipe.cookTime,
           servings: recipe.servings,
           ingredients: recipe.ingredients,
-          instructions: recipe.instructions,
+          instructions: Array.isArray(recipe.instructions) 
+            ? recipe.instructions 
+            : [recipe.instructions],
           tags: recipe.tags?.join(', ') || '',
           image: recipe.image || ''
         });
@@ -93,6 +100,29 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
     }));
   };
 
+  const handleInstructionChange = (index, value) => {
+    const newInstructions = [...formData.instructions];
+    newInstructions[index] = value;
+    setFormData(prev => ({
+      ...prev,
+      instructions: newInstructions
+    }));
+  };
+
+  const addInstruction = () => {
+    setFormData(prev => ({
+      ...prev,
+      instructions: [...prev.instructions, '']
+    }));
+  };
+
+  const removeInstruction = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      instructions: prev.instructions.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -101,6 +131,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
     try {
       const recipeData = {
         ...formData,
+        instructions: formData.instructions.filter(step => step.trim().length > 0),
         id: forkedRecipe?.id || recipeId || Date.now().toString(),
         author: user.name,
         authorAvatar: user.avatar,
@@ -196,6 +227,20 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
           />
         </div>
 
+        <div className={styles.formGroup}>
+          <label htmlFor="about">About this Recipe (optional)</label>
+          <textarea
+            id="about"
+            name="about"
+            value={formData.about}
+            onChange={handleChange}
+            rows="3"
+            disabled={isSubmitting}
+            placeholder="Tell us about your recipe - what makes it special?"
+            className={styles.aboutTextarea}
+          />
+        </div>
+
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label htmlFor="prepTime">Prep Time (minutes)</label>
@@ -275,17 +320,38 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="instructions">Instructions</label>
-          <textarea
-            id="instructions"
-            name="instructions"
-            value={formData.instructions}
-            onChange={handleChange}
-            required
-            rows="6"
+          <label>Instructions</label>
+          {formData.instructions.map((instruction, index) => (
+            <div key={index} className={styles.instructionInput}>
+              <div className={styles.stepNumber}>{index + 1}.</div>
+              <textarea
+                value={instruction}
+                onChange={(e) => handleInstructionChange(index, e.target.value)}
+                required
+                disabled={isSubmitting}
+                placeholder={`Step ${index + 1}`}
+                rows="3"
+              />
+              {index > 0 && (
+                <button
+                  type="button"
+                  onClick={() => removeInstruction(index)}
+                  className={styles.removeButton}
+                  disabled={isSubmitting}
+                >
+                  Remove Step
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addInstruction}
+            className={styles.addButton}
             disabled={isSubmitting}
-            placeholder="Enter each step on a new line"
-          />
+          >
+            Add Step
+          </button>
         </div>
 
         <div className={styles.formGroup}>

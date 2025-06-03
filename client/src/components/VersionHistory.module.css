@@ -1,0 +1,115 @@
+.versionHistory {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.versionHistory h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.versionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.versionItem:hover {
+  background-color: #f5f5f5;
+}
+
+.versionItem.active {
+  border-color: #4CAF50;
+  background-color: #f1f8e9;
+}
+
+.versionInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.versionDate {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.versionActions {
+  display: flex;
+  gap: 8px;
+}
+
+.viewButton,
+.forkButton,
+.revertButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.viewButton {
+  background-color: #2196F3;
+  color: white;
+}
+
+.viewButton:hover {
+  background-color: #1976D2;
+}
+
+.forkButton {
+  background-color: #FF9800;
+  color: white;
+}
+
+.forkButton:hover {
+  background-color: #F57C00;
+}
+
+.revertButton {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.revertButton:hover {
+  background-color: #388E3C;
+}
+
+.revertButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.revertedBadge,
+.forkBadge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.revertedBadge {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.forkBadge {
+  background-color: #FFF3E0;
+  color: #F57C00;
+} 

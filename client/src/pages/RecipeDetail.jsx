@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import CommentSection from '../components/CommentSection';
 import RatingStars from '../components/RatingStars';
 import LikeButton from '../components/LikeButton';
+import VersionHistory from '../components/VersionHistory';
 import styles from './RecipeDetail.module.css';
 
 const LOCAL_RECIPES_KEY = 'dev_recipes';
@@ -22,6 +23,22 @@ export default function RecipeDetail() {
   const [averageRating, setAverageRating] = useState(0);
   const [userRating, setUserRating] = useState(0);
 
+  // Add debug function
+  const debugVersionControl = () => {
+    if (isDevMode) {
+      console.log('=== Version Control Debug Info ===');
+      console.log('Current Recipe:', recipe);
+      console.log('Selected Version:', selectedVersion);
+      console.log('All Versions:', versions);
+      
+      const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
+      console.log('Stored Recipes:', storedRecipes ? JSON.parse(storedRecipes) : []);
+      
+      const storedVersions = localStorage.getItem(`${LOCAL_VERSIONS_KEY}_${id}`);
+      console.log('Stored Versions:', storedVersions ? JSON.parse(storedVersions) : []);
+    }
+  };
+
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
@@ -29,36 +46,88 @@ export default function RecipeDetail() {
           // In dev mode, get from localStorage
           const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
           console.log('RecipeDetail - Stored recipes:', storedRecipes);
-          const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+          
+          if (!storedRecipes) {
+            setError('No recipes found in storage');
+            setLoading(false);
+            return;
+          }
+
+          const recipes = JSON.parse(storedRecipes);
           console.log('RecipeDetail - Parsed recipes:', recipes);
-          const foundRecipe = recipes.find(r => r.id === id);
+          
+          if (!Array.isArray(recipes)) {
+            setError('Invalid recipe data format');
+            setLoading(false);
+            return;
+          }
+
+          // Convert id to string for comparison
+          const recipeId = String(id);
+          const foundRecipe = recipes.find(r => String(r.id) === recipeId);
           console.log('RecipeDetail - Found recipe:', foundRecipe);
+          
           if (foundRecipe) {
-            setRecipe(foundRecipe);
+            // Ensure all required fields are present
+            const validRecipe = {
+              id: foundRecipe.id,
+              title: foundRecipe.title || 'Untitled Recipe',
+              author: foundRecipe.author || 'Anonymous',
+              authorAvatar: foundRecipe.authorAvatar,
+              image: foundRecipe.image,
+              ingredients: Array.isArray(foundRecipe.ingredients) ? foundRecipe.ingredients : [],
+              instructions: Array.isArray(foundRecipe.instructions) 
+                ? foundRecipe.instructions 
+                : typeof foundRecipe.instructions === 'string'
+                  ? foundRecipe.instructions.split('\n').filter(step => step.trim().length > 0)
+                  : [],
+              cuisine: foundRecipe.cuisine || 'Unspecified',
+              prepTime: foundRecipe.prepTime || 0,
+              cookTime: foundRecipe.cookTime || 0,
+              servings: foundRecipe.servings || 1,
+              createdAt: foundRecipe.createdAt || new Date().toISOString()
+            };
+            
+            setRecipe(validRecipe);
+            
             // Fetch version history
-            const storedVersions = localStorage.getItem(`${LOCAL_VERSIONS_KEY}_${id}`);
+            const storedVersions = localStorage.getItem(`${LOCAL_VERSIONS_KEY}_${recipeId}`);
             if (storedVersions) {
-              setVersions(JSON.parse(storedVersions));
+              try {
+                const parsedVersions = JSON.parse(storedVersions);
+                if (Array.isArray(parsedVersions)) {
+                  setVersions(parsedVersions);
+                }
+              } catch (e) {
+                console.error('Error parsing versions:', e);
+              }
             }
             
             // Get ratings
             const storedRatings = localStorage.getItem(LOCAL_RATINGS_KEY);
             if (storedRatings) {
-              const ratingsData = JSON.parse(storedRatings);
-              const recipeRatings = ratingsData[id] || {};
-              
-              // Calculate average rating
-              const ratings = Object.values(recipeRatings);
-              if (ratings.length > 0) {
-                const sum = ratings.reduce((acc, curr) => acc + curr, 0);
-                setAverageRating(sum / ratings.length);
-              }
-              
-              // Get user's rating if they've rated this recipe
-              if (user && recipeRatings[user.name]) {
-                setUserRating(recipeRatings[user.name]);
+              try {
+                const ratingsData = JSON.parse(storedRatings);
+                const recipeRatings = ratingsData[recipeId] || {};
+                
+                // Calculate average rating
+                const ratings = Object.values(recipeRatings);
+                if (ratings.length > 0) {
+                  const sum = ratings.reduce((acc, curr) => acc + curr, 0);
+                  setAverageRating(sum / ratings.length);
+                }
+                
+                // Get user's rating if they've rated this recipe
+                if (user && recipeRatings[user.name]) {
+                  setUserRating(recipeRatings[user.name]);
+                }
+              } catch (e) {
+                console.error('Error parsing ratings:', e);
               }
             }
+            
+            // Add debug call
+            debugVersionControl();
           } else {
             setError('Recipe not found');
           }
@@ -81,6 +150,7 @@ export default function RecipeDetail() {
           }
         }
       } catch (err) {
+        console.error('Error fetching recipe:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -98,17 +168,20 @@ export default function RecipeDetail() {
         id: Date.now().toString(), // Generate new ID
         originalRecipeId: recipe.id, // Keep reference to original
         originalAuthor: recipe.author, // Keep reference to original author
-        author: null, // Will be set when published
+        author: user?.name || 'Anonymous', // Set current user as author
         createdAt: new Date().toISOString(),
         isFork: true,
         parentVersion: selectedVersion?.id || recipe.id // Track which version was forked
       };
+      
+      console.log('Forking recipe:', forkedRecipe);
       localStorage.setItem('forked_recipe', JSON.stringify(forkedRecipe));
       navigate('/create-recipe?fork=true');
     }
   };
 
   const handleViewVersion = (version) => {
+    console.log('Viewing version:', version);
     setSelectedVersion(version);
     setRecipe(version);
   };
@@ -121,6 +194,7 @@ export default function RecipeDetail() {
 
     try {
       if (isDevMode) {
+        console.log('Reverting to version:', version);
         // In dev mode, update localStorage
         const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
         const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
@@ -168,6 +242,7 @@ export default function RecipeDetail() {
         setSelectedVersion(null);
       }
     } catch (err) {
+      console.error('Error reverting recipe:', err);
       setError(err.message);
     }
   };
@@ -195,6 +270,67 @@ export default function RecipeDetail() {
   const handleAuthorClick = () => {
     if (recipe && recipe.author) {
       navigate(`/profile/${recipe.author}`);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!user || user.name !== recipe.author) {
+      setError('Only the recipe author can delete this recipe');
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      if (isDevMode) {
+        // In dev mode, update localStorage
+        const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
+        if (storedRecipes) {
+          const recipes = JSON.parse(storedRecipes);
+          const updatedRecipes = recipes.filter(r => String(r.id) !== String(id));
+          localStorage.setItem(LOCAL_RECIPES_KEY, JSON.stringify(updatedRecipes));
+        }
+
+        // Also remove versions
+        localStorage.removeItem(`${LOCAL_VERSIONS_KEY}_${id}`);
+        
+        // Remove ratings
+        const storedRatings = localStorage.getItem(LOCAL_RATINGS_KEY);
+        if (storedRatings) {
+          const ratings = JSON.parse(storedRatings);
+          delete ratings[id];
+          localStorage.setItem(LOCAL_RATINGS_KEY, JSON.stringify(ratings));
+        }
+
+        // Remove comments
+        const storedComments = localStorage.getItem('dev_comments');
+        if (storedComments) {
+          const comments = JSON.parse(storedComments);
+          delete comments[id];
+          localStorage.setItem('dev_comments', JSON.stringify(comments));
+        }
+
+        navigate('/home');
+      } else {
+        // In production, delete via API
+        const response = await fetch(`http://localhost:3000/api/recipes/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete recipe');
+        }
+
+        navigate('/home');
+      }
+    } catch (err) {
+      console.error('Error deleting recipe:', err);
+      setError(err.message);
     }
   };
 
@@ -271,45 +407,44 @@ export default function RecipeDetail() {
         </div>
       </div>
 
-      <div className={styles.ingredients}>
-        <h2>Ingredients</h2>
-        <ul>
-          {recipe.ingredients.map((ingredient, index) => (
-            <li key={index}>{ingredient}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div className={styles.instructions}>
-        <h2>Instructions</h2>
-        <div className={styles.instructionsText}>
-          {recipe.instructions.split('\n').map((step, index) => (
-            <p key={index}>{step}</p>
-          ))}
-        </div>
-      </div>
-
-      {recipe.tags && recipe.tags.length > 0 && (
-        <div className={styles.tags}>
-          <h3>Tags</h3>
-          <div className={styles.tagList}>
-            {recipe.tags.map((tag, index) => (
-              <span key={index} className={styles.tag}>
-                {tag}
-              </span>
+      <div className={styles.recipeContent}>
+        <div className={styles.ingredients}>
+          <h2>Ingredients</h2>
+          <ul>
+            {recipe.ingredients.map((ingredient, index) => (
+              <li key={index}>{ingredient}</li>
             ))}
-          </div>
+          </ul>
         </div>
-      )}
+        <div className={styles.instructions}>
+          <h2>Instructions</h2>
+          <ol>
+            {recipe.instructions.map((instruction, index) => (
+              <li key={index}>{instruction}</li>
+            ))}
+          </ol>
+        </div>
+      </div>
 
       <div className={styles.actions}>
         <button className={styles.forkButton} onClick={handleFork}>
           Fork Recipe
         </button>
         {user && user.name === recipe.author && (
-          <button className={styles.editButton} onClick={() => navigate(`/edit-recipe/${id}`)}>
-            Edit Recipe
-          </button>
+          <>
+            <button 
+              className={styles.editButton} 
+              onClick={() => navigate(`/edit-recipe/${id}`)}
+            >
+              Edit Recipe
+            </button>
+            <button 
+              className={styles.deleteButton} 
+              onClick={handleDelete}
+            >
+              Delete Recipe
+            </button>
+          </>
         )}
         <button className={styles.backButton} onClick={() => navigate('/home')}>
           Back to Feed
@@ -317,37 +452,15 @@ export default function RecipeDetail() {
       </div>
 
       {versions.length > 0 && (
-        <div className={styles.versionHistory}>
-          <h2>Version History</h2>
-          <div className={styles.versionList}>
-            {versions.map((version) => (
-              <div key={version.id} className={styles.versionItem}>
-                <div className={styles.versionInfo}>
-                  <span className={styles.versionAuthor}>{version.author}</span>
-                  <span className={styles.versionDate}>
-                    {new Date(version.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className={styles.versionActions}>
-                  <button
-                    className={styles.viewButton}
-                    onClick={() => handleViewVersion(version)}
-                  >
-                    View
-                  </button>
-                  {user && user.name === recipe.author && (
-                    <button
-                      className={styles.revertButton}
-                      onClick={() => handleRevert(version)}
-                    >
-                      Revert to this version
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <VersionHistory
+          versions={versions}
+          currentVersion={selectedVersion || recipe}
+          onVersionSelect={handleViewVersion}
+          onFork={handleFork}
+          onRevert={handleRevert}
+          isAuthor={user && user.name === recipe.author}
+          isDevMode={isDevMode}
+        />
       )}
 
       <CommentSection recipeId={id} />

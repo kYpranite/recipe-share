@@ -130,7 +130,7 @@ export default function Home() {
                   cuisine={recipe.cuisine}
                   author={recipe.author || user.name}
                   avatar={recipe.authorAvatar || profile?.avatar}
-                  instructions={recipe.instructions}
+                  about={recipe.about}
                   onView={() => navigate(`/recipe/${recipe.id}`)}
                 />
               ))
@@ -145,7 +145,7 @@ export default function Home() {
             ? 'Search Results' 
             : activeTab === 'recent' 
               ? 'Recent Recipes' 
-              : 'More Recipes'}
+              : 'All Recipes'}
         </h2>
         <div className={styles.feed}>
           {displayRecipes.length === 0 ? (
@@ -163,7 +163,7 @@ export default function Home() {
                 cuisine={recipe.cuisine}
                 author={recipe.author || user.name}
                 avatar={recipe.authorAvatar || profile?.avatar}
-                instructions={recipe.instructions}
+                about={recipe.about}
                 onView={() => navigate(`/recipe/${recipe.id}`)}
               />
             ))
