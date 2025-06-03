@@ -28,8 +28,11 @@ export default function RecipeDetail() {
         if (isDevMode) {
           // In dev mode, get from localStorage
           const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
+          console.log('RecipeDetail - Stored recipes:', storedRecipes);
           const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+          console.log('RecipeDetail - Parsed recipes:', recipes);
           const foundRecipe = recipes.find(r => r.id === id);
+          console.log('RecipeDetail - Found recipe:', foundRecipe);
           if (foundRecipe) {
             setRecipe(foundRecipe);
             // Fetch version history

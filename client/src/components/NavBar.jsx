@@ -36,8 +36,6 @@ export default function NavBar() {
         <div className={styles.links}>
           <Link to="/home">Home</Link>
           <Link to="/create-recipe">Create Recipe</Link>
-          {user && <Link to="/profile">My Profile</Link>}
-          {user && <Link to="/edit-profile">Edit Profile</Link>}
         </div>
         
         <form onSubmit={handleSearch} className={styles.searchContainer}>
@@ -66,7 +64,7 @@ export default function NavBar() {
 
         <div className={styles.links}>
           {user && (
-            <div className={styles.userInfo}>
+            <div className={styles.userInfo} onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
               <img
                 src={profile?.avatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
                 alt="user avatar"

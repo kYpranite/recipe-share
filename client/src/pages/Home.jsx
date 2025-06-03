@@ -21,7 +21,9 @@ export default function Home() {
   //Load recipes and profile info from localStorage
   useEffect(() => {
     const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
+    console.log('Stored recipes:', storedRecipes);
     const recipesData = storedRecipes ? JSON.parse(storedRecipes) : [];
+    console.log('Parsed recipes:', recipesData);
     setRecipes(recipesData);
     setFilteredRecipes(recipesData);
     
