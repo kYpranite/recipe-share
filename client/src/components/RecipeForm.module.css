@@ -1,30 +1,23 @@
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 2rem;
-  background-color: #f5f5f5;
-}
-
-.formBox {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
   max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-.formBox h1 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
+.title {
   font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
 }
 
-.formBox p {
+.forkInfo {
   color: #666;
+  font-size: 1rem;
   margin-bottom: 2rem;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
 }
 
 .form {
@@ -33,19 +26,25 @@
   gap: 1.5rem;
 }
 
-.inputGroup {
+.formGroup {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.inputGroup label {
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.formGroup label {
   font-weight: 500;
   color: #333;
 }
 
-.inputGroup input,
-.inputGroup textarea {
+.formGroup input,
+.formGroup textarea {
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -53,16 +52,10 @@
   transition: border-color 0.2s;
 }
 
-.inputGroup input:focus,
-.inputGroup textarea:focus {
+.formGroup input:focus,
+.formGroup textarea:focus {
   outline: none;
-  border-color: #4a90e2;
-}
-
-.timeGroup {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  border-color: #007bff;
 }
 
 .ingredientInput {
@@ -77,7 +70,7 @@
 
 .removeButton {
   padding: 0.5rem 1rem;
-  background-color: #ff4444;
+  background-color: #dc3545;
   color: white;
   border: none;
   border-radius: 4px;
@@ -86,12 +79,12 @@
 }
 
 .removeButton:hover {
-  background-color: #cc0000;
+  background-color: #c82333;
 }
 
 .addButton {
   padding: 0.5rem 1rem;
-  background-color: #4a90e2;
+  background-color: #28a745;
   color: white;
   border: none;
   border-radius: 4px;
@@ -101,36 +94,58 @@
 }
 
 .addButton:hover {
-  background-color: #357abd;
+  background-color: #218838;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .submitButton {
-  padding: 1rem;
-  background-color: #4a90e2;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
   font-size: 1rem;
-  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex: 1;
+}
+
+.submitButton:hover {
+  background-color: #0056b3;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.submitButton:hover {
-  background-color: #357abd;
-}
-
-.submitButton:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.cancelButton:hover {
+  background-color: #5a6268;
 }
 
 .error {
-  background-color: #ffebee;
-  color: #c62828;
-  padding: 1rem;
+  color: #dc3545;
+  padding: 0.75rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
   border-radius: 4px;
   margin-bottom: 1rem;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

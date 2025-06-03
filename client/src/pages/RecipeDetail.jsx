@@ -46,6 +46,23 @@ export default function RecipeDetail() {
     fetchRecipe();
   }, [id, isDevMode]);
 
+  const handleFork = () => {
+    if (recipe) {
+      // Store the forked recipe data in localStorage
+      const forkedRecipe = {
+        ...recipe,
+        id: Date.now().toString(), // Generate new ID
+        originalRecipeId: recipe.id, // Keep reference to original
+        originalAuthor: recipe.author, // Keep reference to original author
+        author: null, // Will be set when published
+        createdAt: new Date().toISOString(),
+        isFork: true
+      };
+      localStorage.setItem('forked_recipe', JSON.stringify(forkedRecipe));
+      navigate('/create-recipe?fork=true');
+    }
+  };
+
   if (loading) {
     return <div className={styles.loading}>Loading recipe...</div>;
   }
@@ -131,6 +148,9 @@ export default function RecipeDetail() {
       )}
 
       <div className={styles.actions}>
+        <button className={styles.forkButton} onClick={handleFork}>
+          Fork Recipe
+        </button>
         <button className={styles.editButton} onClick={() => navigate(`/edit-recipe/${id}`)}>
           Edit Recipe
         </button>
