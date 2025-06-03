@@ -1,4 +1,16 @@
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Inter', 'Lato', 'Nunito', Arial, sans-serif;
+  background: linear-gradient(120deg, #fdf6ee 0%, #f7fafc 100%);
+  color: #232323;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #root {
+  min-height: 100vh;
+  background: none;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;

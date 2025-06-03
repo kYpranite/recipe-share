@@ -1,0 +1,42 @@
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
+import styles from './NavBar.module.css';
+
+const LOCAL_PROFILE_KEY = 'dev_profile';
+
+export default function NavBar() {
+  const { user, logout } = useAuth();
+  const [profile, setProfile] = useState(null);
+
+  // Load profile info from localStorage (dev mode)
+  useEffect(() => {
+    const storedProfile = localStorage.getItem(LOCAL_PROFILE_KEY);
+    setProfile(storedProfile ? JSON.parse(storedProfile) : null);
+  }, []);
+
+  return (
+    <nav className={styles.navbar}>
+      <div className={styles.logo}>
+        <Link to="/home">RecipeShare</Link>
+      </div>
+      <div className={styles.links}>
+        <Link to="/home">Home</Link>
+        <Link to="/create-recipe">Create Recipe</Link>
+        {user && <Link to="/my-profile">My Profile</Link>}
+        {user && <Link to="/edit-profile">Edit Profile</Link>}
+        {user && (
+          <div className={styles.userInfo}>
+            <img
+              src={profile?.avatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
+              alt="user avatar"
+              className={styles.avatar}
+            />
+            <span className={styles.userName}>{profile?.name || user.name}</span>
+          </div>
+        )}
+        {user && <button className={styles.logout} onClick={logout}>Logout</button>}
+      </div>
+    </nav>
+  );
+} 

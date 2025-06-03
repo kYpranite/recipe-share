@@ -1,0 +1,139 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 80vh;
+  padding: 2.5rem 1rem 1.5rem 1rem;
+  text-align: center;
+  color: #232323;
+  background: none;
+  font-family: 'Inter', 'Lato', 'Nunito', Arial, sans-serif;
+}
+
+.title {
+  font-size: 2.7rem;
+  margin-bottom: 0.7rem;
+  color: #ff9800;
+  font-family: 'Inter', 'Lato', 'Nunito', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 1.18rem;
+  margin-bottom: 2.2rem;
+  color: #6d4c1b;
+  font-weight: 400;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 2.5rem;
+}
+
+.button {
+  padding: 0.85rem 1.7rem;
+  font-size: 1.08rem;
+  background: linear-gradient(90deg, #ffb347 0%, #ff9800 100%);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.08);
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+}
+
+.button:hover {
+  background: #ffd699;
+  color: #ff9800;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.logoutButton {
+  background: #e0e0e0;
+  color: #232323;
+  font-weight: 500;
+}
+
+.feedTitle {
+  margin-top: 1.5rem;
+  font-size: 1.5rem;
+  color: #ff9800;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.feed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.2rem;
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+
+.recipeCard {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(40,40,40,0.08);
+  padding: 2rem 1.3rem 1.3rem 1.3rem;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  border: 1.5px solid #f7fafc;
+  transition: box-shadow 0.2s, border 0.2s;
+}
+
+.recipeCard:hover {
+  box-shadow: 0 8px 32px rgba(255, 168, 0, 0.13);
+  border: 1.5px solid #ffecb3;
+}
+
+.recipeCard h3 {
+  margin: 0 0 0.5rem 0;
+  color: #ff9800;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.viewButton {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  background: linear-gradient(90deg, #b2dfdb 0%, #8bc34a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 600;
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+}
+
+.viewButton:hover {
+  background: #e0f2f1;
+  color: #388e3c;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.emptyFeed {
+  color: #bdb76b;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 700px) {
+  .feed {
+    flex-direction: column;
+    align-items: center;
+  }
+  .recipeCard {
+    width: 100%;
+    max-width: 350px;
+  }
+} 

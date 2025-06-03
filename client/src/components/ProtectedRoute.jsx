@@ -2,15 +2,12 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, isDevMode } = useAuth();
 
-  if (loading) {
-    return <div>Loading...</div>;
+  // Allow access in development mode or if user is authenticated
+  if (isDevMode || user) {
+    return children;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
+  return <Navigate to="/login" replace />;
 } 

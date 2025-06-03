@@ -1,69 +1,73 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import RecipeCard from '../components/RecipeCard';
+import styles from './Home.module.css';
 
-const Home = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+const LOCAL_RECIPES_KEY = 'dev_recipes';
+const LOCAL_PROFILE_KEY = 'dev_profile';
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
+export default function Home() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [recipes, setRecipes] = useState([]);
+  const [profile, setProfile] = useState(null);
+
+  // Load recipes and profile info from localStorage
+  useEffect(() => {
+    const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
+    setRecipes(storedRecipes ? JSON.parse(storedRecipes) : []);
+    const storedProfile = localStorage.getItem(LOCAL_PROFILE_KEY);
+    setProfile(storedProfile ? JSON.parse(storedProfile) : null);
+  }, []);
+
+  // Listen for new recipes added in dev mode
+  useEffect(() => {
+    const handleStorage = () => {
+      const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
+      setRecipes(storedRecipes ? JSON.parse(storedRecipes) : []);
     };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
-    return (
-        <div style={styles.container}>
-            <h1 style={styles.title}>Welcome to Recipe Share</h1>
-            <p style={styles.subtitle}>
-                Hello, {user.name}! Your go-to app for discovering and sharing amazing recipes.
-            </p>
-            <div style={styles.buttonContainer}>
-                <button style={styles.button}>Get Started</button>
-                <button 
-                    style={{ ...styles.button, ...styles.logoutButton }}
-                    onClick={handleLogout}
-                >
-                    Logout
-                </button>
-            </div>
-        </div>
-    );
-};
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-const styles = {
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '80vh',
-        textAlign: 'center',
-        color: '#333',
-    },
-    title: {
-        fontSize: '3rem',
-        marginBottom: '1rem',
-    },
-    subtitle: {
-        fontSize: '1.2rem',
-        marginBottom: '2rem',
-    },
-    buttonContainer: {
-        display: 'flex',
-        gap: '1rem',
-    },
-    button: {
-        padding: '0.8rem 1.5rem',
-        fontSize: '1rem',
-        backgroundColor: '#ff6f61',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-    },
-    logoutButton: {
-        backgroundColor: '#666',
-    },
-};
-
-export default Home;
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Welcome to Recipe Share</h1>
+      <p className={styles.subtitle}>
+        Hello, {profile?.name || user.name}! Your go-to app for discovering and sharing amazing recipes.
+      </p>
+      <div className={styles.buttonContainer}>
+        <button className={styles.button} onClick={() => navigate('/create-recipe')}>
+          Create Recipe
+        </button>
+        <button 
+          className={`${styles.button} ${styles.logoutButton}`}
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
+      <h2 className={styles.feedTitle}>Your Recipe Feed</h2>
+      <div className={styles.feed}>
+        {recipes.length === 0 && <div className={styles.emptyFeed}>No recipes yet. Create one!</div>}
+        {recipes.map(recipe => (
+          <RecipeCard
+            key={recipe.id}
+            title={recipe.title}
+            cuisine={recipe.cuisine}
+            author={profile?.name || recipe.author || user.name}
+            avatar={profile?.avatar}
+            instructions={recipe.instructions}
+            onView={() => navigate(`/recipe/${recipe.id}`)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
