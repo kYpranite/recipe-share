@@ -58,12 +58,20 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: white;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
 }
 
 .userCard:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.userCard:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .avatar {
@@ -74,6 +82,11 @@
   margin-bottom: 1rem;
   border: 3px solid #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.userCard:hover .avatar {
+  transform: scale(1.05);
 }
 
 .userInfo {
@@ -84,6 +97,11 @@
   margin: 0;
   font-size: 1.2rem;
   color: #333;
+  transition: color 0.2s ease;
+}
+
+.userCard:hover .userInfo h3 {
+  color: #007bff;
 }
 
 .username {
@@ -111,13 +129,20 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   font-size: 0.9rem;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .followButton:hover {
   background-color: #218838;
+  transform: translateY(-1px);
+}
+
+.followButton:active {
+  transform: translateY(0);
 }
 
 .loadMoreButton {
