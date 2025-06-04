@@ -18,7 +18,11 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
     prepTime: '',
     cookTime: '',
     servings: '',
-    ingredients: [''],
+    ingredients: [{
+      name: '',
+      amount: '',
+      unit: ''
+    }],
     instructions: [''],
     tags: '',
     image: ''
@@ -77,9 +81,12 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
     }));
   };
 
-  const handleIngredientChange = (index, value) => {
+  const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...formData.ingredients];
-    newIngredients[index] = value;
+    newIngredients[index] = {
+      ...newIngredients[index],
+      [field]: value
+    };
     setFormData(prev => ({
       ...prev,
       ingredients: newIngredients
@@ -89,7 +96,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
   const addIngredient = () => {
     setFormData(prev => ({
       ...prev,
-      ingredients: [...prev.ingredients, '']
+      ingredients: [...prev.ingredients, { name: '', amount: '', unit: '' }]
     }));
   };
 
@@ -129,58 +136,79 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
     setIsSubmitting(true);
 
     try {
+      const formattedIngredients = formData.ingredients
+        .filter(ing => ing.name.trim() && ing.amount && ing.unit)
+        .map(ingredient => ({
+          name: ingredient.name.trim(),
+          amount: parseFloat(ingredient.amount),
+          unit: ingredient.unit
+        }));
+
+      const formattedInstructions = formData.instructions
+        .filter(step => step.trim())
+        .map((step, index) => ({
+          stepNumber: index + 1,
+          description: step
+        }));
+
+      // Prepare the recipe data according to the API schema
       const recipeData = {
-        ...formData,
-        instructions: formData.instructions.filter(step => step.trim().length > 0),
-        id: forkedRecipe?.id || recipeId || Date.now().toString(),
-        author: user.name,
-        authorAvatar: user.avatar,
-        createdAt: new Date().toISOString(),
-        originalRecipeId: forkedRecipe?.originalRecipeId,
-        originalAuthor: forkedRecipe?.originalAuthor,
-        isFork: !!forkedRecipe,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+        name: formData.title,
+        description: formData.about || `A delicious ${formData.cuisine} recipe`,
+        isPrivate: false,
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        versionData: {
+          ingredients: formattedIngredients,
+          instructions: formattedInstructions,
+          cookingTime: {
+            prep: {
+              value: parseInt(formData.prepTime),
+              unit: 'minutes'
+            },
+            cook: {
+              value: parseInt(formData.cookTime),
+              unit: 'minutes'
+            }
+          },
+          servings: parseInt(formData.servings),
+          images: formData.image ? [{ url: formData.image, caption: formData.title }] : [],
+          changelog: forkedRecipe ? 'Forked from original recipe' : 'Initial version'
+        }
       };
 
+      // If this is a fork, add the forked from reference
       if (forkedRecipe) {
-        // Clear the forked recipe from localStorage
+        recipeData.forkedFrom = forkedRecipe.originalRecipeId || forkedRecipe.id;
+      }
+
+      // Make API call to create recipe
+      const response = await fetch('http://localhost:3000/api/recipes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(recipeData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 
+          (errorData.details ? errorData.details.join(', ') : 'Failed to create recipe'));
+      }
+
+      const { recipe: createdRecipe } = await response.json();
+      console.log('Recipe created successfully:', createdRecipe);
+
+      // Clear any stored fork data if this was a fork
+      if (forkedRecipe) {
         localStorage.removeItem('forked_recipe');
       }
 
-      // In dev mode, store in localStorage
-      const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
-      const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
-      
-      if (recipeId) {
-        // Update existing recipe
-        const recipeIndex = recipes.findIndex(r => r.id === recipeId);
-        if (recipeIndex !== -1) {
-          // Store the old version in version history
-          const oldVersion = recipes[recipeIndex];
-          const storedVersions = localStorage.getItem(`${LOCAL_VERSIONS_KEY}_${recipeId}`);
-          const versions = storedVersions ? JSON.parse(storedVersions) : [];
-          versions.unshift(oldVersion);
-          localStorage.setItem(`${LOCAL_VERSIONS_KEY}_${recipeId}`, JSON.stringify(versions));
-          
-          // Update the recipe
-          recipes[recipeIndex] = recipeData;
-        }
-      } else {
-        // Add new recipe
-        recipes.unshift(recipeData);
-      }
-      
-      localStorage.setItem(LOCAL_RECIPES_KEY, JSON.stringify(recipes));
-
-      // Store profile info in localStorage (dev mode)
-      const profile = {
-        name: user.name,
-        avatar: user.avatar
-      };
-      localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(profile));
-
-      navigate('/home');
+      // Navigate to the newly created recipe's detail page
+      navigate(`/recipe/${createdRecipe._id}`);
     } catch (err) {
+      console.error('Error creating recipe:', err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);
@@ -289,14 +317,48 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
           <label>Ingredients</label>
           {formData.ingredients.map((ingredient, index) => (
             <div key={index} className={styles.ingredientInput}>
-              <input
-                type="text"
-                value={ingredient}
-                onChange={(e) => handleIngredientChange(index, e.target.value)}
-                required
-                disabled={isSubmitting}
-                placeholder={`Ingredient ${index + 1}`}
-              />
+              <div className={styles.ingredientFields}>
+                <input
+                  type="number"
+                  value={ingredient.amount}
+                  onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+                  placeholder="Quantity"
+                  className={styles.quantityInput}
+                  required
+                  disabled={isSubmitting}
+                  min="0"
+                  step="0.01"
+                />
+                <select
+                  value={ingredient.unit}
+                  onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+                  className={styles.unitSelect}
+                  required
+                  disabled={isSubmitting}
+                >
+                  <option value="">Select unit</option>
+                  <option value="g">grams</option>
+                  <option value="kg">kilograms</option>
+                  <option value="oz">ounces</option>
+                  <option value="lb">pounds</option>
+                  <option value="cup">cups</option>
+                  <option value="tbsp">tablespoons</option>
+                  <option value="tsp">teaspoons</option>
+                  <option value="ml">milliliters</option>
+                  <option value="l">liters</option>
+                  <option value="piece">pieces</option>
+                  <option value="unit">units</option>
+                </select>
+                <input
+                  type="text"
+                  value={ingredient.name}
+                  onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+                  placeholder="Ingredient name"
+                  className={styles.ingredientNameInput}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
               {index > 0 && (
                 <button
                   type="button"
