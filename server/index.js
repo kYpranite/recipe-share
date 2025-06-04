@@ -23,11 +23,13 @@ const MONGO_USERNAME = process.env.MONGO_USERNAME;
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
 
 // Temporarily using my own MongoDB Atlas cluster to test the app
-const uri = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@crud.mqpkeon.mongodb.net/?retryWrites=true&w=majority&appName=crud`;
+//const uri = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@crud.mqpkeon.mongodb.net/?retryWrites=true&w=majority&appName=crud`;
+const uri = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@crud.mqpkeon.mongodb.net/prod?retryWrites=true&w=majority&appName=crud`;
 console.log('MongoDB URI:', uri.replace(MONGO_PASSWORD, '****'));
 
+//mongoose.connect(uri, { dbName: 'process.env.MONGO_DATABASE' })
 mongoose.connect(uri)
-  .then(() => console.log('Successfully connected to MongoDB'))
+.then(() => console.log('Successfully connected to MongoDB'))
   .catch((err) => {
     console.error('Failed to connect to MongoDB:', err);
     process.exit(1);
