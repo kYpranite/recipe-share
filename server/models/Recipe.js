@@ -52,6 +52,14 @@ const recipeSchema = new mongoose.Schema({
     required: [true, 'Cuisine is required'],
     trim: true
   },
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  likeCount: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

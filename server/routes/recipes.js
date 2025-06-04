@@ -118,6 +118,80 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
+// Get recipe likes
+router.get('/:id/likes', auth, async (req, res) => {
+  console.log('GET /api/recipes/:id/likes - Fetching recipe likes');
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    const isLiked = recipe.likes.includes(req.user.id);
+    res.json({
+      likeCount: recipe.likeCount,
+      isLiked
+    });
+  } catch (error) {
+    console.error('Error fetching recipe likes:', error);
+    res.status(500).json({ message: 'Error fetching recipe likes', error: error.message });
+  }
+});
+
+// Like recipe
+router.post('/:id/like', auth, async (req, res) => {
+  console.log('POST /api/recipes/:id/like - Liking recipe');
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    if (recipe.likes.includes(req.user.id)) {
+      return res.status(400).json({ message: 'Recipe already liked' });
+    }
+
+    recipe.likes.push(req.user.id);
+    recipe.likeCount += 1;
+    await recipe.save();
+
+    res.json({
+      message: 'Recipe liked successfully',
+      likeCount: recipe.likeCount
+    });
+  } catch (error) {
+    console.error('Error liking recipe:', error);
+    res.status(500).json({ message: 'Error liking recipe', error: error.message });
+  }
+});
+
+// Unlike recipe
+router.post('/:id/unlike', auth, async (req, res) => {
+  console.log('POST /api/recipes/:id/unlike - Unliking recipe');
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    if (!recipe.likes.includes(req.user.id)) {
+      return res.status(400).json({ message: 'Recipe not liked' });
+    }
+
+    recipe.likes = recipe.likes.filter(id => id.toString() !== req.user.id);
+    recipe.likeCount = Math.max(0, recipe.likeCount - 1);
+    await recipe.save();
+
+    res.json({
+      message: 'Recipe unliked successfully',
+      likeCount: recipe.likeCount
+    });
+  } catch (error) {
+    console.error('Error unliking recipe:', error);
+    res.status(500).json({ message: 'Error unliking recipe', error: error.message });
+  }
+});
+
 // Update recipe
 router.put('/:id', auth, async (req, res) => {
   console.log('PUT /api/recipes/:id - Updating recipe');
