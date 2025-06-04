@@ -1,0 +1,196 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Judson', serif;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+.modalContent {
+  padding: 1.5rem;
+  max-height: calc(80vh - 100px);
+  overflow-y: auto;
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.versionItem {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.versionItem:hover {
+  background: #f0f0f0;
+}
+
+.versionItem.active {
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+}
+
+.versionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.versionDate {
+  font-family: 'Roboto Mono', monospace;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.revertedBadge,
+.forkBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.revertedBadge {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.forkBadge {
+  background: #e8f5e9;
+  color: #43a047;
+}
+
+.versionActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.viewButton,
+.forkButton,
+.revertButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewButton {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.viewButton:hover {
+  background: #bbdefb;
+}
+
+.forkButton {
+  background: #e8f5e9;
+  color: #43a047;
+}
+
+.forkButton:hover {
+  background: #c8e6c9;
+}
+
+.revertButton {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.revertButton:hover {
+  background: #ffe0b2;
+}
+
+.revertButton:disabled {
+  background: #f5f5f5;
+  color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .versionItem {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .versionActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+} 
