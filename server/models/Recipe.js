@@ -49,7 +49,6 @@ const recipeSchema = new mongoose.Schema({
   }],
   cuisine: {
     type: String,
-    required: [true, 'Cuisine is required'],
     trim: true
   },
   likes: [{

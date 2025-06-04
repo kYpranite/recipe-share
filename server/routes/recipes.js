@@ -83,6 +83,37 @@ router.get('/recent', auth, async (req, res) => {
   }
 });
 
+// Get trending recipes (most liked in past 3 days)
+router.get('/trending', auth, async (req, res) => {
+  console.log('GET /api/recipes/trending - Fetching trending recipes');
+  try {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+    const recipes = await Recipe.find({ 
+      isPrivate: false,
+      updatedAt: { $gte: threeDaysAgo }
+    })
+      .populate('currentVersion')
+      .populate('originalAuthor', 'name profilePicture')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'author',
+          select: 'name profilePicture'
+        }
+      })
+      .sort({ likeCount: -1 })
+      .limit(3);
+
+    console.log(`Found ${recipes.length} trending recipes`);
+    res.json(recipes);
+  } catch (error) {
+    console.error('Error fetching trending recipes:', error);
+    res.status(500).json({ message: 'Error fetching trending recipes', error: error.message });
+  }
+});
+
 // Get single recipe
 router.get('/:id', auth, async (req, res) => {
   console.log('GET /api/recipes/:id - Fetching recipe');

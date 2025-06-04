@@ -39,12 +39,35 @@ export default function Home() {
       console.log("Recipes data:", recipesData);
       setRecipes(recipesData);
       setFilteredRecipes(recipesData);
-      // currently just taking most recent 3 as trending, add algo later
-      setTrendingRecipes(recipesData.slice(0, 3));
     } catch (error) {
       console.error('Error fetching recipes:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Fetch trending recipes from API
+  const fetchTrendingRecipes = async () => {
+    try {
+      const API_URL = 'http://localhost:3000/api/recipes/trending';
+      console.log('Fetching trending recipes from:', API_URL);
+      const response = await fetch(API_URL, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch trending recipes: ${response.status} ${response.statusText}`);
+      }
+
+      const responseText = await response.text();
+      const trendingData = JSON.parse(responseText);
+      console.log("Trending recipes data:", trendingData);
+      setTrendingRecipes(trendingData);
+    } catch (error) {
+      console.error('Error fetching trending recipes:', error);
     }
   };
 
@@ -54,6 +77,13 @@ export default function Home() {
     const storedProfile = localStorage.getItem(LOCAL_PROFILE_KEY);
     setProfile(storedProfile ? JSON.parse(storedProfile) : null);
   }, []);
+
+  // Fetch trending recipes when trending tab is active
+  useEffect(() => {
+    if (activeTab === 'trending') {
+      fetchTrendingRecipes();
+    }
+  }, [activeTab]);
 
   //Handle search parameters from URL
   useEffect(() => {
