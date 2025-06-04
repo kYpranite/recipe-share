@@ -6,17 +6,37 @@ import styles from './NavBar.module.css';
 const LOCAL_PROFILE_KEY = 'dev_profile';
 
 export default function NavBar() {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
   const [profile, setProfile] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('name');
   const navigate = useNavigate();
 
-  //load profile info from localStorage (dev mode)
+  // Fetch latest profile data when user changes
   useEffect(() => {
-    const storedProfile = localStorage.getItem(LOCAL_PROFILE_KEY);
-    setProfile(storedProfile ? JSON.parse(storedProfile) : null);
-  }, []);
+    const fetchProfile = async () => {
+      if (!user || !token) return;
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/users/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+          localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, token]);
 
   // Update profile when user changes
   useEffect(() => {
@@ -82,7 +102,7 @@ export default function NavBar() {
           {user && (
             <div className={styles.userInfo} onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
               <img
-                src={profile?.avatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
+                src={profile?.profilePicture || user?.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
                 alt="user avatar"
                 className={styles.avatar}
               />
