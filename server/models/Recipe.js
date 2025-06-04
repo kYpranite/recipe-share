@@ -43,6 +43,11 @@ const recipeSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
+  cuisine: {
+    type: String,
+    required: [true, 'Cuisine is required'],
+    trim: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -66,7 +71,7 @@ recipeSchema.methods.getVersionHistory = async function() {
 
 recipeSchema.methods.addVersion = async function(versionData) {
   const newVersion = await mongoose.model('Version').create({
-    ...versionData,
+    ...versionData,x
     recipe: this._id,
     versionNumber: this.versionHistory.length + 1,
     changelog: versionData.changelog || 'No changes specified',

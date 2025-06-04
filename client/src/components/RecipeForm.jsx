@@ -157,6 +157,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
         description: formData.about || `A delicious ${formData.cuisine} recipe`,
         isPrivate: false,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        cuisine: formData.cuisine,
         versionData: {
           ingredients: formattedIngredients,
           instructions: formattedInstructions,

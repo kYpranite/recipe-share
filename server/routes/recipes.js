@@ -16,6 +16,7 @@ router.post('/', auth, async (req, res) => {
       description,
       isPrivate,
       tags,
+      cuisine,
       versionData
     } = req.body;
 
@@ -24,7 +25,8 @@ router.post('/', auth, async (req, res) => {
       description,
       originalAuthor: req.user.id,
       isPrivate: isPrivate || false,
-      tags: tags || []
+      tags: tags || [],
+      cuisine
     });
 
     // Create initial version
