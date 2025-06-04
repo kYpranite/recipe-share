@@ -148,7 +148,7 @@ export default function Home() {
                   id={recipe._id}
                   title={recipe.name}
                   cuisine={recipe.cuisine}
-                  author={recipe.originalAuthor._id}
+                  author={recipe.originalAuthor.name}
                   avatar={recipe.originalAuthor.profilePicture}
                   about={recipe.description}
                   onView={() => navigate(`/recipe/${recipe._id}`)}
