@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Name is required'],
     trim: true
   },
+  recipes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Recipe'
+  }],
   profilePicture: {
     type: String,
     default: '' // URL to the profile picture
