@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+import Version from '../models/Version.js';
+
 const recipeSchema = new mongoose.Schema({
   name: {
     type: String,

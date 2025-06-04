@@ -38,13 +38,6 @@ const versionSchema = new mongoose.Schema({
     description: {
       type: String,
       required: true
-    },
-    time: {
-      value: Number,
-      unit: {
-        type: String,
-        enum: ['minutes', 'hours']
-      }
     }
   }],
   cookingTime: {
