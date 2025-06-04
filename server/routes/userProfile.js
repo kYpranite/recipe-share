@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import Follow from '../models/Follow.js';
 import { auth } from '../middleware/auth.js';
+import Recipe from '../models/Recipe.js';
 
 const router = express.Router();
 
@@ -183,13 +184,20 @@ router.patch('/profile/social', auth, async (req, res) => {
 // Get user's recipes
 router.get('/:userId/recipes', auth, async (req, res) => {
   console.log('GET /:userId/recipes - Fetching user recipes');
-  console.log('User ID:', req.params.userId);
   
   try {
     const userId = req.params.userId === 'me' ? req.user.id : req.params.userId;
-    // This endpoint will be implemented when we add the Recipe model
-    // For now, return an empty array
-    res.json({ recipes: [] });
+    const recipes = await Recipe.find({ originalAuthor: userId })
+      .populate('currentVersion')
+      .populate('originalAuthor', 'name profilePicture')
+      .sort({ updatedAt: -1 });
+    // Filter out private recipes if the requesting user is not the author
+    const filteredRecipes = recipes.filter(recipe => 
+      !recipe.isPrivate || recipe.originalAuthor._id.toString() === req.user.id
+    );
+
+    console.log(`Found ${filteredRecipes.length} recipes for user ${userId}`);
+    res.json({ recipes: filteredRecipes });
   } catch (error) {
     console.error('Error fetching user recipes:', error);
     res.status(500).json({ message: 'Error fetching recipes', error: error.message });

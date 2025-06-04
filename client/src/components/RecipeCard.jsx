@@ -93,7 +93,7 @@ export default function RecipeCard({ id, title, cuisine, author, avatar, about, 
         </p>
       )}
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', marginTop: '0.5rem' }}>
         {averageRating > 0 && (
           <div className={styles.cardRating}>
             <span className={styles.ratingValue}>{averageRating.toFixed(1)}</span>

@@ -43,6 +43,11 @@ const recipeSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
+  cuisine: {
+    type: String,
+    required: [true, 'Cuisine is required'],
+    trim: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
