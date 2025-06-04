@@ -172,7 +172,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
           },
           servings: parseInt(formData.servings),
           images: formData.image ? [{ url: formData.image, caption: formData.title }] : [],
-          changelog: 'Initial version'
+          changelog: forkedRecipe ? 'Forked from original recipe' : 'Initial version'
         }
       };
 
@@ -193,19 +193,20 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to create recipe');
+        throw new Error(errorData.message || errorData.error || 
+          (errorData.details ? errorData.details.join(', ') : 'Failed to create recipe'));
       }
 
-      const data = await response.json();
-      console.log('Recipe created successfully:', data);
+      const { recipe: createdRecipe } = await response.json();
+      console.log('Recipe created successfully:', createdRecipe);
 
       // Clear any stored fork data if this was a fork
       if (forkedRecipe) {
         localStorage.removeItem('forked_recipe');
       }
 
-      // Navigate to home page after successful creation
-      navigate('/home');
+      // Navigate to the newly created recipe's detail page
+      navigate(`/recipe/${createdRecipe._id}`);
     } catch (err) {
       console.error('Error creating recipe:', err);
       setError(err.message);

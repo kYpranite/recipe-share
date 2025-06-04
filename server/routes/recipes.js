@@ -1,6 +1,8 @@
 import express from 'express';
 import Recipe from '../models/Recipe.js';
 import User from '../models/User.js';
+import Version from '../models/Version.js';
+
 import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
