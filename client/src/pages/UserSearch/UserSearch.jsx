@@ -70,7 +70,8 @@ function UserSearch() {
     }
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (e) => {
+    e.preventDefault();
     if (!searchTerm.trim()) {
       loadInitialUsers();
       return;
@@ -156,7 +157,7 @@ function UserSearch() {
     <div className={styles.container}>
       <h1>Search Users</h1>
       
-      <div className={styles.searchForm}>
+      <form onSubmit={handleSearch} className={styles.searchForm}>
         <input
           type="text"
           value={searchTerm}
@@ -164,7 +165,10 @@ function UserSearch() {
           placeholder="Search by username or name..."
           className={styles.searchInput}
         />
-      </div>
+        <button type="submit" className={styles.searchButton}>
+          Search
+        </button>
+      </form>
 
       {isLoading && currentPage === 1 && <p>Loading...</p>}
       {error && <p className={styles.error}>{error}</p>}
@@ -181,7 +185,7 @@ function UserSearch() {
                 onClick={() => handleUserClick(user._id)}
               >
                 <img 
-                  src={user.profilePicture || '/default-avatar.png'} 
+                  src={user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'} 
                   alt={user.name}
                   className={styles.avatar}
                 />
