@@ -5,7 +5,7 @@ import styles from './CommentSection.module.css';
 const LOCAL_COMMENTS_KEY = 'dev_comments';
 
 export default function CommentSection({ recipeId }) {
-  const { user, isDevMode } = useAuth();
+  const { user, token, isDevMode } = useAuth();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState('');
@@ -24,10 +24,14 @@ export default function CommentSection({ recipeId }) {
 
   const fetchComments = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${recipeId}/comments`);
+      const response = await fetch(`http://localhost:3000/api/comments/recipe/${recipeId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch comments');
       const data = await response.json();
-      setComments(data.comments);
+      setComments(data);
     } catch (err) {
       setError('Failed to load comments');
     }
@@ -37,36 +41,37 @@ export default function CommentSection({ recipeId }) {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    const comment = {
-      id: Date.now().toString(),
-      text: newComment,
-      author: user.name,
-      authorAvatar: user.avatar,
-      createdAt: new Date().toISOString()
-    };
-
     try {
       if (isDevMode) {
+        console.log("HERE");
         // Save to localStorage in dev mode
         const storedComments = localStorage.getItem(LOCAL_COMMENTS_KEY);
         const allComments = storedComments ? JSON.parse(storedComments) : {};
         const recipeComments = allComments[recipeId] || [];
+        const comment = {
+          id: Date.now().toString(),
+          content: newComment,
+          author: {
+            name: user.name,
+            profilePicture: user.avatar
+          },
+          createdAt: new Date().toISOString()
+        };
         allComments[recipeId] = [...recipeComments, comment];
         localStorage.setItem(LOCAL_COMMENTS_KEY, JSON.stringify(allComments));
         setComments(allComments[recipeId]);
       } else {
-        // Save to API in production
-        const response = await fetch(`http://localhost:3000/api/recipes/${recipeId}/comments`, {
+        const response = await fetch(`http://localhost:3000/api/comments/${recipeId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`
+            'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ text: newComment })
+          body: JSON.stringify({ content: newComment })
         });
         if (!response.ok) throw new Error('Failed to post comment');
-        const data = await response.json();
-        setComments(prev => [...prev, data.comment]);
+        const comment = await response.json();
+        setComments(prev => [comment, ...prev]);
       }
       setNewComment('');
     } catch (err) {
@@ -98,21 +103,21 @@ export default function CommentSection({ recipeId }) {
           <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
         ) : (
           comments.map(comment => (
-            <div key={comment.id} className={styles.comment}>
+            <div key={comment._id} className={styles.comment}>
               <div className={styles.commentHeader}>
                 <img
-                  src={comment.authorAvatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
+                  src={comment.author.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
                   alt="author avatar"
                   className={styles.authorAvatar}
                 />
                 <div className={styles.commentInfo}>
-                  <span className={styles.authorName}>{comment.author}</span>
+                  <span className={styles.authorName}>{comment.author.name}</span>
                   <span className={styles.commentDate}>
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-              <p className={styles.commentText}>{comment.text}</p>
+              <p className={styles.commentText}>{comment.content}</p>
             </div>
           ))
         )}
