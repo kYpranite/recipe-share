@@ -6,14 +6,14 @@ import styles from '../pages/Home.module.css';
 const LOCAL_RATINGS_KEY = 'dev_ratings';
 
 //displays a single recipe in the feed
-export default function RecipeCard({ id, title, cuisine, author, avatar, about, onView }) {
+export default function RecipeCard({ id, title, cuisine, author, authorId, avatar, about, onView }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   
   const handleAuthorClick = (e) => {
     e.stopPropagation();
-    if (author) {
-      navigate(`/profile/${author}`);
+    if (authorId) {
+      navigate(`/profile/${authorId}`);
     }
   };
 

@@ -149,6 +149,7 @@ export default function Home() {
                   title={recipe.name}
                   cuisine={recipe.cuisine}
                   author={recipe.originalAuthor.name}
+                  authorId={recipe.originalAuthor._id}
                   avatar={recipe.originalAuthor.profilePicture}
                   about={recipe.description}
                   onView={() => navigate(`/recipe/${recipe._id}`)}
@@ -184,6 +185,7 @@ export default function Home() {
                 title={recipe.name}
                 cuisine={recipe.cuisine}
                 author={recipe.originalAuthor.name}
+                authorId={recipe.originalAuthor._id}
                 avatar={recipe.originalAuthor.profilePicture}
                 about={recipe.description}
                 onView={() => navigate(`/recipe/${recipe._id}`)}

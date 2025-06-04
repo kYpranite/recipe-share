@@ -1,27 +1,39 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1rem;
+  background: none;
 }
 
-.loading, .error {
-  text-align: center;
-  padding: 2rem;
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
   font-size: 1.2rem;
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .error {
-  color: #dc3545;
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: center;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .profileHeader {
   display: flex;
-  gap: 2rem;
+  align-items: flex-start;
   margin-bottom: 2rem;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+  background: none;
+  padding: 0;
 }
 
 .avatar {
@@ -29,7 +41,9 @@
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #4CAF50;
+  border: 3px solid #ffecb3;
+  margin-right: 2rem;
+  background: #fff;
 }
 
 .profileInfo {
@@ -37,177 +51,190 @@
 }
 
 .username {
-  font-size: 2rem;
-  margin: 0 0 0.5rem 0;
-  color: #333;
+  font-family: 'Judson', serif;
+  font-size: 2.2rem;
+  margin: 0 0 0.5rem;
+  color: #232323;
+  text-align: left;
+  font-weight: normal;
 }
 
 .bio {
-  color: #666;
-  margin-bottom: 1.5rem;
+  font-family: 'Roboto Mono', monospace;
+  margin: 0.5rem 0 1.5rem;
+  color: #555;
+  line-height: 1.5;
+  font-size: 1rem;
 }
 
 .stats {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
+  margin: 1.5rem 0;
 }
 
 .stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.stat:hover {
-  transform: translateY(-2px);
+  margin-right: 2rem;
+  text-align: center;
+  cursor: default;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .statNumber {
+  display: block;
   font-size: 1.5rem;
-  font-weight: bold;
-  color: #4CAF50;
+  font-weight: 600;
+  color: #ff9800;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .statLabel {
-  color: #666;
   font-size: 0.9rem;
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .followButton, .unfollowButton {
   padding: 0.5rem 1.5rem;
-  border: none;
   border-radius: 20px;
-  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.followButton {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.followButton:hover {
-  background-color: #45a049;
-}
-
-.unfollowButton {
-  background-color: #f8f9fa;
-  color: #333;
+  transition: all 0.2s;
+  border: none;
+  background-color: #f5f5f5;
+  color: #666;
   border: 1px solid #ddd;
+  font-size: 1rem;
 }
 
-.unfollowButton:hover {
-  background-color: #e9ecef;
+.followButton:hover, .unfollowButton:hover {
+  background-color: #eeeeee;
 }
 
 .tabs {
   display: flex;
-  gap: 1rem;
+  border-bottom: 1px solid #eee;
   margin-bottom: 2rem;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 1rem;
+  background: none;
 }
 
 .tab {
-  padding: 0.5rem 1rem;
-  border: none;
+  padding: 0.75rem 1.5rem;
   background: none;
+  border: none;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 500;
   color: #666;
   cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
   font-size: 1rem;
-  transition: all 0.2s ease;
+}
+
+.tab:last-child {
+  padding-right: 0;
 }
 
 .tab:hover {
-  color: #4CAF50;
+  color: #ff9800;
 }
 
 .activeTab {
-  color: #4CAF50;
-  border-bottom: 2px solid #4CAF50;
+  color: #ff9800;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #ff9800;
 }
 
 .content {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 300px;
+  background: none;
+  padding: 2rem 0 0 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .recipeGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
 .recipeCard {
-  background: #f8f9fa;
   border-radius: 8px;
-  padding: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .recipeCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.recipeCard h3 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
+.recipeImage {
+  height: 180px;
+  overflow: hidden;
 }
 
-.recipeCard p {
-  color: #666;
-  margin: 0;
-}
-
-.userGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.userCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.userCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.userAvatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+.recipeImage img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  margin-bottom: 1rem;
 }
 
-.userCard h3 {
+.placeholderImage {
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+}
+
+.recipeInfo {
+  padding: 1rem;
+}
+
+.recipeTitle {
+  margin: 0 0 0.5rem;
+  font-family: 'Judson', serif;
+  color: #232323;
+}
+
+.recipeCuisine {
   margin: 0;
-  color: #333;
-  text-align: center;
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.recipeAuthor {
+  margin: 0.5rem 0 0;
+  color: #ff9800;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .emptyState {
   text-align: center;
-  color: #666;
-  padding: 2rem;
-  grid-column: 1 / -1;
+  color: #999;
+  font-family: 'Roboto Mono', monospace;
+  margin: 3rem 0;
+  background: none;
 }
 
 @media (max-width: 768px) {
@@ -219,10 +246,12 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 1rem;
+    padding: 0;
   }
 
   .avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
     width: 120px;
     height: 120px;
   }
@@ -231,7 +260,7 @@
     justify-content: center;
   }
 
-  .recipeGrid, .userGrid {
-    grid-template-columns: 1fr;
+  .recipeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 } 
