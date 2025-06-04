@@ -136,7 +136,6 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
     setIsSubmitting(true);
 
     try {
-      // Transform ingredients - no parsing needed now since we have structured data
       const formattedIngredients = formData.ingredients
         .filter(ing => ing.name.trim() && ing.amount && ing.unit)
         .map(ingredient => ({
@@ -145,18 +144,14 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
           unit: ingredient.unit
         }));
 
-      // Transform instructions into required format
       const formattedInstructions = formData.instructions
         .filter(step => step.trim())
         .map((step, index) => ({
           stepNumber: index + 1,
-          description: step,
-          time: {
-            value: null,
-            unit: 'minutes'
-          }
+          description: step
         }));
 
+      // Prepare the recipe data according to the API schema
       const recipeData = {
         name: formData.title,
         description: formData.about || `A delicious ${formData.cuisine} recipe`,
@@ -181,6 +176,11 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
         }
       };
 
+      // If this is a fork, add the forked from reference
+      if (forkedRecipe) {
+        recipeData.forkedFrom = forkedRecipe.originalRecipeId || forkedRecipe.id;
+      }
+
       // Make API call to create recipe
       const response = await fetch('http://localhost:3000/api/recipes', {
         method: 'POST',
@@ -193,12 +193,18 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create recipe');
+        throw new Error(errorData.message || errorData.error || 'Failed to create recipe');
       }
 
       const data = await response.json();
       console.log('Recipe created successfully:', data);
 
+      // Clear any stored fork data if this was a fork
+      if (forkedRecipe) {
+        localStorage.removeItem('forked_recipe');
+      }
+
+      // Navigate to home page after successful creation
       navigate('/home');
     } catch (err) {
       console.error('Error creating recipe:', err);

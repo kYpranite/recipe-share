@@ -419,9 +419,17 @@ export default function RecipeDetail() {
         <div className={styles.instructions}>
           <h2>Instructions</h2>
           <ol>
-            {recipe.instructions.map((instruction, index) => (
-              <li key={index}>{instruction}</li>
-            ))}
+            {Array.isArray(recipe.instructions) ? (
+              recipe.instructions.map((instruction, index) => (
+                <li key={index}>
+                  {typeof instruction === 'string' 
+                    ? instruction 
+                    : instruction.description}
+                </li>
+              ))
+            ) : (
+              <li>No instructions available</li>
+            )}
           </ol>
         </div>
       </div>
