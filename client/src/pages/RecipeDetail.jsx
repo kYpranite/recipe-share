@@ -184,7 +184,13 @@ export default function RecipeDetail() {
             alt="author avatar"
             className={styles.authorAvatar}
           />
-          <span className={styles.authorName}>{recipe.author}</span>
+          <span 
+            className={styles.authorName}
+            onClick={() => navigate(`/profile/${recipe.originalAuthor}`)}
+            style={{ cursor: 'pointer' }}
+          >
+            {recipe.author}
+          </span>
         </div>
       </div>
 
