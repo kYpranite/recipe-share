@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Login.module.css';
 
+const LOCAL_PROFILE_KEY = 'dev_profile';
+
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, isDevMode } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -36,8 +39,21 @@ export default function Login() {
       // Use auth context to handle login
       login(data.user, data.token);
 
-      // Redirect to home page
-      navigate('/home');
+      // Initialize profile in localStorage for dev mode
+      if (isDevMode) {
+        const initialProfile = {
+          name: data.user.name,
+          email: data.user.email,
+          bio: '',
+          avatar: '',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(initialProfile));
+      }
+
+      // Redirect to the page they were trying to access, or home if none
+      const destination = location.state?.from?.pathname || '/home';
+      navigate(destination);
     } catch (err) {
       setError(err.message);
     } finally {

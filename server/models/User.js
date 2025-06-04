@@ -20,7 +20,35 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Name is required'],
     trim: true
   },
+  profilePicture: {
+    type: String,
+    default: '' // URL to the profile picture
+  },
+  bio: {
+    type: String,
+    maxlength: [500, 'Bio cannot be more than 500 characters'],
+    default: ''
+  },
+  location: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  socialLinks: {
+    website: { type: String, default: '' },
+    instagram: { type: String, default: '' },
+    twitter: { type: String, default: '' },
+    facebook: { type: String, default: '' }
+  },
+  preferences: {
+    dietaryRestrictions: [{ type: String }],
+    favoriteCategories: [{ type: String }]
+  },
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
@@ -33,6 +61,7 @@ userSchema.pre('save', async function(next) {
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    this.updatedAt = new Date();
     next();
   } catch (error) {
     next(error);

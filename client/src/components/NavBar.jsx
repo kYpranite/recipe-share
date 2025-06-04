@@ -18,11 +18,26 @@ export default function NavBar() {
     setProfile(storedProfile ? JSON.parse(storedProfile) : null);
   }, []);
 
+  // Update profile when user changes
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      localStorage.removeItem(LOCAL_PROFILE_KEY);
+    }
+  }, [user]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/home?search=${searchTerm}&type=${searchType}`);
     }
+  };
+
+  const handleLogout = async () => {
+    setProfile(null);
+    localStorage.removeItem(LOCAL_PROFILE_KEY);
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -73,7 +88,7 @@ export default function NavBar() {
               <span className={styles.userName}>{profile?.name || user.name}</span>
             </div>
           )}
-          {user && <button className={styles.logout} onClick={logout}>Logout</button>}
+          {user && <button className={styles.logout} onClick={handleLogout}>Logout</button>}
         </div>
       </div>
     </nav>

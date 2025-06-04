@@ -11,7 +11,7 @@ const LOCAL_LIKES_KEY = 'dev_likes';
 export default function UserProfile() {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { user, isDevMode } = useAuth();
+  const { user, token } = useAuth();
   const [profile, setProfile] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [likedRecipes, setLikedRecipes] = useState([]);
@@ -22,115 +22,138 @@ export default function UserProfile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState('recipes');
 
-  const isOwnProfile = !username || (user && user.name === username);
-  const displayUsername = isOwnProfile ? user?.name : username;
+  const isOwnProfile = !username || (user && username === user.name);
+  const displayUsername = username || (user && user.name) || '';
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        if (isDevMode) {
-          // Get profile data from localStorage
-          let profileData = null;
-          
-          if (isOwnProfile) {
-            // For own profile, use user data and any stored profile data
-            const storedProfile = localStorage.getItem(LOCAL_PROFILE_KEY);
-            profileData = storedProfile ? JSON.parse(storedProfile) : { name: user.name };
-          } else {
-            // For other users, we'll simulate finding them
-            // In a real app, this would be an API call
-            profileData = { name: username, bio: `This is ${username}'s profile` };
+        if (!token) {
+          throw new Error('Authentication required');
+        }
+
+        // Fetch user profile
+        const profileResponse = await fetch(
+          `http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-          
-          setProfile(profileData);
-          
-          // Get recipes
-          const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
-          const allRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
-          const userRecipes = allRecipes.filter(r => r.author === displayUsername);
-          setRecipes(userRecipes);
-          
-          // Get follows data
-          const storedFollows = localStorage.getItem(LOCAL_FOLLOWS_KEY);
-          const followsData = storedFollows ? JSON.parse(storedFollows) : { followers: {}, following: {} };
-          
-          // Get followers and following for this profile
-          const profileFollowers = followsData.followers[displayUsername] || [];
-          const profileFollowing = followsData.following[displayUsername] || [];
-          
-          setFollowers(profileFollowers);
-          setFollowing(profileFollowing);
-          
-          // Check if current user is following this profile
-          if (!isOwnProfile && user) {
-            const currentUserFollowing = followsData.following[user.name] || [];
-            setIsFollowing(currentUserFollowing.includes(displayUsername));
+        );
+
+        console.log('Profile response status:', profileResponse.status);
+        
+        if (!profileResponse.ok) {
+          const errorData = await profileResponse.json();
+          throw new Error(errorData.message || 'Failed to fetch profile');
+        }
+
+        const profileData = await profileResponse.json();
+        console.log('Received profile data:', profileData);
+        setProfile(profileData);
+
+        // Fetch user's recipes
+        const recipesResponse = await fetch(
+          `http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/recipes`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-          
-          // Get liked recipes
-          const storedLikes = localStorage.getItem(LOCAL_LIKES_KEY);
-          const likesData = storedLikes ? JSON.parse(storedLikes) : {};
-          const userLikes = likesData[displayUsername] || [];
-          
-          // Find the full recipe objects for liked recipes
-          const likedRecipeObjects = allRecipes.filter(recipe => userLikes.includes(recipe.id));
-          setLikedRecipes(likedRecipeObjects);
-        } else {
-          // In production, fetch from API
-          const profileResponse = await fetch(`http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          });
-          
-          if (!profileResponse.ok) {
-            throw new Error('Failed to fetch profile');
+        );
+
+        if (!recipesResponse.ok) {
+          throw new Error('Failed to fetch recipes');
+        }
+
+        const recipesData = await recipesResponse.json();
+        setRecipes(recipesData.recipes || []);
+
+        // Fetch followers and following
+        const followersResponse = await fetch(
+          `http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/followers`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-          
-          const profileData = await profileResponse.json();
-          setProfile(profileData);
-          
-          // Fetch recipes
-          const recipesResponse = await fetch(`http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/recipes`);
-          const recipesData = await recipesResponse.json();
-          setRecipes(recipesData.recipes);
-          
-          // Fetch followers and following
-          const followersResponse = await fetch(`http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/followers`);
+        );
+
+        if (followersResponse.ok) {
           const followersData = await followersResponse.json();
-          setFollowers(followersData.followers);
-          
-          const followingResponse = await fetch(`http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/following`);
+          setFollowers(followersData.followers || []);
+        }
+
+        const followingResponse = await fetch(
+          `http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/following`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (followingResponse.ok) {
           const followingData = await followingResponse.json();
-          setFollowing(followingData.following);
-          
-          // Check if current user is following this profile
-          if (!isOwnProfile) {
-            const isFollowingResponse = await fetch(`http://localhost:3000/api/users/${username}/is-following`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+          setFollowing(followingData.following || []);
+        }
+
+        // Check if current user is following this profile
+        if (!isOwnProfile) {
+          const isFollowingResponse = await fetch(
+            `http://localhost:3000/api/users/${username}/is-following`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+
+          if (isFollowingResponse.ok) {
             const isFollowingData = await isFollowingResponse.json();
             setIsFollowing(isFollowingData.isFollowing);
           }
-          
-          // Fetch liked recipes
-          const likedResponse = await fetch(`http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/liked-recipes`);
+        }
+
+        // Fetch liked recipes
+        const likedResponse = await fetch(
+          `http://localhost:3000/api/users/${isOwnProfile ? 'me' : username}/liked-recipes`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (likedResponse.ok) {
           const likedData = await likedResponse.json();
-          setLikedRecipes(likedData.recipes);
+          setLikedRecipes(likedData.recipes || []);
         }
       } catch (err) {
+        console.error('Error fetching profile data:', err);
         setError(err.message || 'Failed to load profile data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfileData();
-  }, [displayUsername, isDevMode, isOwnProfile, user]);
+    if (displayUsername) {
+      fetchProfileData();
+    }
+  }, [displayUsername, isOwnProfile, token, username, user]);
 
   const handleFollow = async () => {
     if (!user || isOwnProfile) return;
     
     try {
-      if (isDevMode) {
+      if (isOwnProfile) {
         // Update follows in localStorage
         const storedFollows = localStorage.getItem(LOCAL_FOLLOWS_KEY);
         const followsData = storedFollows ? JSON.parse(storedFollows) : { followers: {}, following: {} };

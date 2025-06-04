@@ -1,6 +1,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { auth } from '../middleware/auth.js';
+import { blacklistToken } from '../utils/tokenBlacklist.js';
 
 const router = express.Router();
 
@@ -94,6 +96,17 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error: error.message });
+  }
+});
+
+// Logout user
+router.post('/logout', auth, async (req, res) => {
+  try {
+    // Add the token to the blacklist
+    blacklistToken(req.token);
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging out', error: error.message });
   }
 });
 
