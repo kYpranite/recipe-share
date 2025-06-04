@@ -45,13 +45,14 @@ export default function RecipeDetail() {
           description: data.description,
           ingredients: data.currentVersion.ingredients,
           instructions: data.currentVersion.instructions,
-          cuisine: data.currentVersion.cuisine || 'Unspecified',
+          cuisine: data.cuisine,
           prepTime: data.currentVersion.cookingTime?.prep?.value || 0,
           cookTime: data.currentVersion.cookingTime?.cook?.value || 0,
           servings: data.currentVersion.servings,
           image: data.currentVersion.images?.[0]?.url,
           createdAt: data.createdAt,
-          tags: data.tags
+          tags: data.tags,
+          originalAuthor: data.originalAuthor._id
         };
 
         setRecipe(transformedRecipe);
@@ -161,35 +162,6 @@ export default function RecipeDetail() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!user) {
-      setError('You must be logged in to delete a recipe');
-      return;
-    }
-
-    if (!window.confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete recipe');
-      }
-
-      navigate('/home');
-    } catch (err) {
-      console.error('Error deleting recipe:', err);
-      setError(err.message);
-    }
-  };
-
   if (loading) {
     return <div className={styles.loading}>Loading recipe...</div>;
   }
@@ -227,7 +199,7 @@ export default function RecipeDetail() {
       <div className={styles.recipeInfo}>
         <div className={styles.infoItem}>
           <span className={styles.label}>Cuisine:</span>
-          <span>{recipe.cuisine}</span>
+          <span>{recipe.cuisine || 'Unspecified'}</span>
         </div>
         <div className={styles.infoItem}>
           <span className={styles.label}>Prep Time:</span>
@@ -266,32 +238,24 @@ export default function RecipeDetail() {
 
       <div className={styles.actions}>
         <button className={styles.forkButton} onClick={handleFork}>
-          Fork Recipe
+          <span>Fork Recipe</span>
         </button>
+        {user && user.id === recipe.originalAuthor && (
+          <button 
+            className={styles.editButton} 
+            onClick={() => navigate(`/edit-recipe/${id}`)}
+          >
+            <span>Edit Recipe</span>
+          </button>
+        )}
         <button 
           className={styles.versionButton} 
           onClick={() => setVersionHistoryVisible(!versionHistoryVisible)}
         >
-          Version History
+          <span>Version History</span>
         </button>
-        {user && user.id === recipe.originalAuthor && (
-          <>
-            <button 
-              className={styles.editButton} 
-              onClick={() => navigate(`/edit-recipe/${id}`)}
-            >
-              Edit Recipe
-            </button>
-            <button 
-              className={styles.deleteButton} 
-              onClick={handleDelete}
-            >
-              Delete Recipe
-            </button>
-          </>
-        )}
         <button className={styles.backButton} onClick={() => navigate('/home')}>
-          Back to Feed
+          <span>Back to Feed</span>
         </button>
       </div>
 

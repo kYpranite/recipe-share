@@ -49,27 +49,43 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
       });
     } else if (recipeId) {
       // Load existing recipe for editing
-      const storedRecipes = localStorage.getItem(LOCAL_RECIPES_KEY);
-      const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
-      const recipe = recipes.find(r => r.id === recipeId);
-      
-      if (recipe) {
-        setOriginalRecipe(recipe);
-        setFormData({
-          title: recipe.title,
-          cuisine: recipe.cuisine,
-          about: recipe.about || '',
-          prepTime: recipe.prepTime,
-          cookTime: recipe.cookTime,
-          servings: recipe.servings,
-          ingredients: recipe.ingredients,
-          instructions: Array.isArray(recipe.instructions) 
-            ? recipe.instructions 
-            : [recipe.instructions],
-          tags: recipe.tags?.join(', ') || '',
-          image: recipe.image || ''
-        });
-      }
+      const fetchRecipe = async () => {
+        try {
+          const response = await fetch(`http://localhost:3000/api/recipes/${recipeId}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch recipe');
+          }
+
+          const data = await response.json();
+          setOriginalRecipe(data);
+          setFormData({
+            title: data.name,
+            cuisine: data.cuisine,
+            about: data.description || '',
+            prepTime: data.currentVersion.cookingTime?.prep?.value || '',
+            cookTime: data.currentVersion.cookingTime?.cook?.value || '',
+            servings: data.currentVersion.servings || '',
+            ingredients: data.currentVersion.ingredients.map(ing => ({
+              name: ing.name,
+              amount: ing.amount,
+              unit: ing.unit
+            })),
+            instructions: data.currentVersion.instructions.map(inst => inst.description),
+            tags: data.tags?.join(', ') || '',
+            image: data.currentVersion.images?.[0]?.url || ''
+          });
+        } catch (err) {
+          console.error('Error fetching recipe:', err);
+          setError(err.message);
+        }
+      };
+
+      fetchRecipe();
     }
   }, [forkedRecipe, recipeId]);
 
@@ -173,43 +189,54 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
           },
           servings: parseInt(formData.servings),
           images: formData.image ? [{ url: formData.image, caption: formData.title }] : [],
-          changelog: forkedRecipe ? 'Forked from original recipe' : 'Initial version'
+          changelog: forkedRecipe ? 'Forked from original recipe' : recipeId ? 'Updated recipe' : 'Initial version'
         }
       };
 
-      // If this is a fork, add the forked from reference
-      if (forkedRecipe) {
-        recipeData.forkedFrom = forkedRecipe.originalRecipeId || forkedRecipe.id;
+      let response;
+      if (recipeId) {
+        // Update existing recipe
+        response = await fetch(`http://localhost:3000/api/recipes/${recipeId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(recipeData)
+        });
+      } else {
+        // Create new recipe
+        if (forkedRecipe) {
+          recipeData.forkedFrom = forkedRecipe.originalRecipeId || forkedRecipe.id;
+        }
+        response = await fetch('http://localhost:3000/api/recipes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(recipeData)
+        });
       }
-
-      // Make API call to create recipe
-      const response = await fetch('http://localhost:3000/api/recipes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(recipeData)
-      });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || errorData.error || 
-          (errorData.details ? errorData.details.join(', ') : 'Failed to create recipe'));
+          (errorData.details ? errorData.details.join(', ') : 'Failed to save recipe'));
       }
 
-      const { recipe: createdRecipe } = await response.json();
-      console.log('Recipe created successfully:', createdRecipe);
+      const { recipe: savedRecipe } = await response.json();
+      console.log('Recipe saved successfully:', savedRecipe);
 
       // Clear any stored fork data if this was a fork
       if (forkedRecipe) {
         localStorage.removeItem('forked_recipe');
       }
 
-      // Navigate to the newly created recipe's detail page
-      navigate(`/recipe/${createdRecipe._id}`);
+      // Navigate to the recipe's detail page
+      navigate(`/recipe/${savedRecipe._id}`);
     } catch (err) {
-      console.error('Error creating recipe:', err);
+      console.error('Error saving recipe:', err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);

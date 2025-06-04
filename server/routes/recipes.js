@@ -118,4 +118,64 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
+// Update recipe
+router.put('/:id', auth, async (req, res) => {
+  console.log('PUT /api/recipes/:id - Updating recipe');
+  console.log('Recipe ID:', req.params.id);
+  
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    
+    if (!recipe) {
+      console.log('Recipe not found');
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    if (recipe.originalAuthor.toString() !== req.user.id) {
+      console.log('Unauthorized to update recipe');
+      return res.status(403).json({ message: 'Not authorized to update this recipe' });
+    }
+
+    const {
+      name,
+      description,
+      isPrivate,
+      tags,
+      cuisine,
+      versionData
+    } = req.body;
+
+    // Update recipe fields
+    recipe.name = name;
+    recipe.description = description;
+    recipe.isPrivate = isPrivate || false;
+    recipe.tags = tags || [];
+    recipe.cuisine = cuisine;
+
+    // Create new version
+    const newVersion = await recipe.addVersion({
+      ...versionData,
+      author: req.user.id
+    });
+
+    await recipe.save();
+
+    console.log('Recipe updated successfully:', recipe);
+    res.json({
+      message: 'Recipe updated successfully',
+      recipe: {
+        ...recipe.toObject(),
+        currentVersion: newVersion
+      }
+    });
+  } catch (error) {
+    console.error('Error updating recipe:', error);
+    res.status(500).json({ 
+      message: 'Error updating recipe', 
+      error: error.message,
+      details: error.errors ? Object.values(error.errors).map(err => err.message) : undefined
+    });
+  }
+});
+
 export default router; 
