@@ -83,6 +83,13 @@
   font-family: 'Roboto Mono', monospace;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .followButton, .unfollowButton, .editButton {
   padding: 0.5rem 1.5rem;
   border-radius: 20px;
@@ -91,7 +98,6 @@
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  margin-top: 1rem;
 }
 
 .followButton {
@@ -244,10 +250,14 @@
   
   .avatar {
     margin-right: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
   
   .stats {
+    justify-content: center;
+  }
+  
+  .actions {
     justify-content: center;
   }
   

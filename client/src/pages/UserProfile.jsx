@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SocialLinks from '../components/SocialLinks';
 import styles from './UserProfile.module.css';
 
 const LOCAL_RECIPES_KEY = 'dev_recipes';
@@ -222,8 +223,8 @@ export default function UserProfile() {
           className={styles.avatar}
         />
         <div className={styles.profileInfo}>
-          <h1 className={styles.username}>{profile.name}</h1>
-          {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
+          <h1 className={styles.username}>{displayUsername}</h1>
+          {profile?.bio && <p className={styles.bio}>{profile.bio}</p>}
           
           <div className={styles.stats}>
             <div className={styles.stat}>
@@ -240,23 +241,24 @@ export default function UserProfile() {
             </div>
           </div>
           
-          {!isOwnProfile && user && (
-            <button 
-              className={isFollowing ? styles.unfollowButton : styles.followButton}
-              onClick={handleFollow}
-            >
-              {isFollowing ? 'Unfollow' : 'Follow'}
-            </button>
-          )}
-          
-          {isOwnProfile && (
-            <button 
-              className={styles.editButton}
-              onClick={() => navigate('/edit-profile')}
-            >
-              Edit Profile
-            </button>
-          )}
+          <div className={styles.actions}>
+            {isOwnProfile ? (
+              <button 
+                className={styles.editButton}
+                onClick={() => navigate('/edit-profile')}
+              >
+                Edit Profile
+              </button>
+            ) : (
+              <button 
+                className={isFollowing ? styles.unfollowButton : styles.followButton}
+                onClick={handleFollow}
+              >
+                {isFollowing ? 'Unfollow' : 'Follow'}
+              </button>
+            )}
+            {profile?.socialLinks && <SocialLinks socialLinks={profile.socialLinks} />}
+          </div>
         </div>
       </div>
       
