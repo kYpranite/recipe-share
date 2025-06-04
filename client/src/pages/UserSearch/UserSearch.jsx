@@ -10,8 +10,13 @@ function UserSearch() {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const navigate = useNavigate();
+
+  // Filter out current user from results
+  const filterCurrentUser = (users) => {
+    return users.filter(userData => userData._id !== user._id);
+  };
 
   useEffect(() => {
     loadInitialUsers();
@@ -45,8 +50,9 @@ function UserSearch() {
       }
 
       const data = await response.json();
-      // Sort users alphabetically by name
-      const sortedUsers = data.users.sort((a, b) => a.name.localeCompare(b.name));
+      // Filter out current user and sort
+      const filteredUsers = filterCurrentUser(data.users);
+      const sortedUsers = filteredUsers.sort((a, b) => a.name.localeCompare(b.name));
       setSearchResults(sortedUsers);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
@@ -83,8 +89,9 @@ function UserSearch() {
       }
 
       const data = await response.json();
-      // Sort users alphabetically by name
-      const sortedUsers = data.users.sort((a, b) => a.name.localeCompare(b.name));
+      // Filter out current user and sort
+      const filteredUsers = filterCurrentUser(data.users);
+      const sortedUsers = filteredUsers.sort((a, b) => a.name.localeCompare(b.name));
       setSearchResults(sortedUsers);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
@@ -118,8 +125,12 @@ function UserSearch() {
       }
 
       const data = await response.json();
-      // Combine existing and new users, then sort the entire list
-      const combinedUsers = [...searchResults, ...data.users];
+      // Filter out current user from new results
+      const filteredNewUsers = filterCurrentUser(data.users);
+      // Filter out current user from existing results as well
+      const filteredExistingUsers = filterCurrentUser(searchResults);
+      // Combine and sort all users
+      const combinedUsers = [...filteredExistingUsers, ...filteredNewUsers];
       const sortedUsers = combinedUsers.sort((a, b) => a.name.localeCompare(b.name));
       setSearchResults(sortedUsers);
       setHasMore(data.hasMore);

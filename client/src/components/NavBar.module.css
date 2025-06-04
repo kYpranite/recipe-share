@@ -30,6 +30,11 @@
   font-weight: 700;
   letter-spacing: 1px;
   font-family: 'Judson', serif;
+  transition: color 0.2s ease;
+}
+
+.logo a:hover {
+  color: #f57c00;
 }
 
 .navBar {
@@ -56,16 +61,20 @@
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
-  padding: 0.3rem 0.8rem;
+  padding: 0.5rem 1.2rem;
   border-radius: 20px;
-  transition: background 0.18s, color 0.18s;
+  transition: all 0.2s ease;
   font-family: 'Roboto Mono', monospace;
   white-space: nowrap;
+  background: #f7fafc;
+  box-shadow: 0 1px 4px rgba(40,40,40,0.04);
 }
 
 .links a:hover, .links a:focus {
   background: #fff3e0;
   color: #ff9800;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.1);
 }
 
 .searchContainer {
@@ -81,6 +90,11 @@
   padding: 0.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.searchBox:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .searchInput {
@@ -90,12 +104,15 @@
   border-radius: 6px;
   font-size: 0.9rem;
   font-family: 'Roboto Mono', monospace;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
 }
 
 .searchInput:focus {
   outline: none;
   border-color: #ff9800;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
 }
 
 .searchType {
@@ -107,28 +124,37 @@
   background-color: white;
   color: #333;
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.searchType:hover {
+  border-color: #ff9800;
+  background: #fff3e0;
 }
 
 .searchType:focus {
   outline: none;
   border-color: #ff9800;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
 }
 
 .searchButton {
   padding: 0.5rem 1rem;
-  background-color: #ff9800;
+  background: linear-gradient(90deg, #ffb347 0%, #ff9800 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 20px;
   font-size: 0.9rem;
   font-family: 'Roboto Mono', monospace;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(255, 152, 0, 0.08);
 }
 
 .searchButton:hover {
-  background-color: #f57c00;
+  background: #ffd699;
+  color: #ff9800;
+  transform: translateY(-2px) scale(1.04);
 }
 
 .logout {
@@ -141,7 +167,7 @@
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(255, 152, 0, 0.08);
-  transition: background 0.18s, color 0.18s, transform 0.18s;
+  transition: all 0.2s ease;
   font-family: 'Roboto Mono', monospace;
   white-space: nowrap;
   margin: 0;
@@ -163,6 +189,14 @@
   box-shadow: 0 1px 4px rgba(40,40,40,0.04);
   flex-shrink: 0;
   margin: 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.userInfo:hover {
+  background: #fff3e0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.1);
 }
 
 .avatar {
@@ -172,6 +206,11 @@
   object-fit: cover;
   border: 1.5px solid #ffecb3;
   background: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.userInfo:hover .avatar {
+  border-color: #ff9800;
 }
 
 .userName {
@@ -181,6 +220,11 @@
   font-family: 'Roboto Mono', monospace;
   margin-left: 0.2rem;
   white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.userInfo:hover .userName {
+  color: #f57c00;
 }
 
 @media (max-width: 1200px) {
