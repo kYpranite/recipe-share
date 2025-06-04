@@ -45,7 +45,9 @@ function UserSearch() {
       }
 
       const data = await response.json();
-      setSearchResults(data.users);
+      // Sort users alphabetically by name
+      const sortedUsers = data.users.sort((a, b) => a.name.localeCompare(b.name));
+      setSearchResults(sortedUsers);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -81,7 +83,9 @@ function UserSearch() {
       }
 
       const data = await response.json();
-      setSearchResults(data.users);
+      // Sort users alphabetically by name
+      const sortedUsers = data.users.sort((a, b) => a.name.localeCompare(b.name));
+      setSearchResults(sortedUsers);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -114,7 +118,10 @@ function UserSearch() {
       }
 
       const data = await response.json();
-      setSearchResults(prev => [...prev, ...data.users]);
+      // Combine existing and new users, then sort the entire list
+      const combinedUsers = [...searchResults, ...data.users];
+      const sortedUsers = combinedUsers.sort((a, b) => a.name.localeCompare(b.name));
+      setSearchResults(sortedUsers);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
