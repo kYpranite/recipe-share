@@ -6,7 +6,7 @@ import styles from '../pages/Home.module.css';
 const LOCAL_RATINGS_KEY = 'dev_ratings';
 
 //displays a single recipe in the feed
-export default function RecipeCard({ id, title, cuisine, author, authorId, avatar, about, onView }) {
+export default function RecipeCard({ id, title, cuisine, author, authorId, avatar, about, image, onView }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   
@@ -46,69 +46,59 @@ export default function RecipeCard({ id, title, cuisine, author, authorId, avata
   
   return (
     <div className={styles.recipeCard}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.5rem' }}>
+      <div className={styles.authorSection}>
         <img
           src={avatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
           alt="author avatar"
-          style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #ffecb3' }}
+          className={styles.authorAvatar}
           onClick={handleAuthorClick}
         />
         <div 
-          style={{ 
-            fontWeight: 600, 
-            color: '#ff9800', 
-            fontSize: '1.08rem',
-            fontFamily: "'Roboto Mono', monospace",
-            cursor: 'pointer'
-          }}
+          className={styles.authorName}
           onClick={handleAuthorClick}
         >
           {author || 'Anonymous'}
         </div>
       </div>
-      <h3 style={{ 
-        color: '#232323',
-        fontFamily: "'Judson', serif",
-        marginBottom: '0.5rem'
-      }}>
-        {title || 'Untitled Recipe'}
-      </h3>
-      <p style={{ 
-        margin: 0, 
-        color: '#666', 
-        fontWeight: 500,
-        fontFamily: "'Roboto Mono', monospace"
-      }}>
-        <strong>Cuisine:</strong> {cuisine || 'Unspecified'}
-      </p>
-      {about && about.trim() && (
-        <p style={{ 
-          margin: '0.5rem 0 0.7rem 0', 
-          color: '#232323',
-          fontFamily: "'Roboto Mono', monospace",
-          fontSize: '0.95rem',
-          lineHeight: '1.4'
-        }}>
-          {about}
-        </p>
+
+      {image && (
+        <div className={styles.recipeImage}>
+          <img src={image} alt={title} />
+        </div>
       )}
-      
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', marginTop: '0.5rem' }}>
-        {averageRating > 0 && (
-          <div className={styles.cardRating}>
-            <span className={styles.ratingValue}>{averageRating.toFixed(1)}</span>
-            <span className={styles.stars}>
-              {'★'.repeat(Math.round(averageRating))}
-              {'☆'.repeat(5 - Math.round(averageRating))}
-            </span>
-          </div>
+
+      <div className={styles.recipeContent}>
+        <h3 className={styles.recipeTitle}>
+          {title || 'Untitled Recipe'}
+        </h3>
+        
+        <p className={styles.cuisine}>
+          <strong>Cuisine:</strong> {cuisine || 'Unspecified'}
+        </p>
+
+        {about && about.trim() && (
+          <p className={styles.recipeDescription}>
+            {about}
+          </p>
         )}
-        {user && <LikeButton recipeId={id} />}
+        
+        <div className={styles.recipeFooter}>
+          {averageRating > 0 && (
+            <div className={styles.cardRating}>
+              <span className={styles.ratingValue}>{averageRating.toFixed(1)}</span>
+              <span className={styles.stars}>
+                {'★'.repeat(Math.round(averageRating))}
+                {'☆'.repeat(5 - Math.round(averageRating))}
+              </span>
+            </div>
+          )}
+          {user && <LikeButton recipeId={id} />}
+        </div>
+        
+        <button className={styles.viewButton} onClick={handleViewClick}>
+          View Recipe
+        </button>
       </div>
-      
-      <button className={styles.viewButton} onClick={handleViewClick}>
-        View Recipe
-      </button>
     </div>
   );
 } 

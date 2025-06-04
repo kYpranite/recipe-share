@@ -196,6 +196,13 @@ export default function RecipeDetail() {
         )}
       </div>
 
+      {recipe.description && (
+        <div className={styles.aboutSection}>
+          <h2>About this Recipe</h2>
+          <p>{recipe.description}</p>
+        </div>
+      )}
+
       <div className={styles.recipeInfo}>
         <div className={styles.infoItem}>
           <span className={styles.label}>Cuisine:</span>

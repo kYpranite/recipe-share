@@ -185,6 +185,30 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.aboutSection {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.aboutSection h2 {
+  color: #232323;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  font-family: 'Judson', serif;
+}
+
+.aboutSection p {
+  color: #333;
+  line-height: 1.6;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1rem;
+  margin: 0;
+}
+
 .infoItem {
   display: flex;
   flex-direction: column;

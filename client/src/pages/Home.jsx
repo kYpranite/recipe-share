@@ -152,6 +152,7 @@ export default function Home() {
                   authorId={recipe.originalAuthor._id}
                   avatar={recipe.originalAuthor.profilePicture}
                   about={recipe.description}
+                  image={recipe.currentVersion?.images?.[0]?.url}
                   onView={() => navigate(`/recipe/${recipe._id}`)}
                 />
               ))
@@ -188,6 +189,7 @@ export default function Home() {
                 authorId={recipe.originalAuthor._id}
                 avatar={recipe.originalAuthor.profilePicture}
                 about={recipe.description}
+                image={recipe.currentVersion?.images?.[0]?.url}
                 onView={() => navigate(`/recipe/${recipe._id}`)}
               />
             ))
