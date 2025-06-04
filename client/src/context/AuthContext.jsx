@@ -2,51 +2,38 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-// set to true to bypass authentication
-const DEV_MODE = true;
-
-// mock user data for development
-const MOCK_USER = {
-  _id: 'dev-user-id',
-  name: 'Developer User',
-  email: 'dev@example.com'
-};
+// set to false to enable real authentication
+const DEV_MODE = false;
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(DEV_MODE ? MOCK_USER : null);
-  const [token, setToken] = useState(DEV_MODE ? 'dev-token' : null);
-  const [loading, setLoading] = useState(!DEV_MODE);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!DEV_MODE) {
-      const storedToken = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-      }
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
     }
     
     setLoading(false);
   }, []);
 
   const login = (userData, authToken) => {
-    if (!DEV_MODE) {
-      setUser(userData);
-      setToken(authToken);
-      localStorage.setItem('token', authToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-    }
+    setUser(userData);
+    setToken(authToken);
+    localStorage.setItem('token', authToken);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
-    if (!DEV_MODE) {
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   };
 
   const value = {
@@ -54,8 +41,7 @@ export const AuthProvider = ({ children }) => {
     token,
     login,
     logout,
-    loading,
-    isDevMode: DEV_MODE
+    loading
   };
 
   return (

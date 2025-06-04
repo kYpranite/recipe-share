@@ -1,35 +1,29 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem;
 }
 
 .profileBox {
   background: white;
-  padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 2rem;
 }
 
-h1 {
-  color: #2c3e50;
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
+.profileBox h1 {
+  color: #ff9800;
   text-align: center;
+  margin-bottom: 2rem;
+  font-family: 'Judson', serif;
 }
 
 .form {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .inputGroup {
@@ -40,78 +34,141 @@ h1 {
 
 .inputGroup label {
   color: #333;
+  font-size: 0.9rem;
   font-weight: 500;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .inputGroup input,
 .inputGroup textarea {
-  padding: 0.75rem;
+  padding: 0.8rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
-  background: #fff;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s ease;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .inputGroup input:focus,
 .inputGroup textarea:focus {
-  border-color: #ff9800;
   outline: none;
+  border-color: #ff9800;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.1);
+}
+
+.section {
+  border-top: 1px solid #eee;
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+}
+
+.section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-family: 'Judson', serif;
 }
 
 .saveButton {
-  background: #ff9800;
-  color: #fff;
+  background-color: #ff9800;
+  color: white;
+  padding: 1rem;
   border: none;
   border-radius: 6px;
-  padding: 0.8rem 1.5rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
-  align-self: center;
+  transition: background-color 0.2s ease;
+  margin-top: 1rem;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .saveButton:hover {
-  background: #f57c00;
+  background-color: #f57c00;
 }
 
 .savedMsg {
-  color: #4caf50;
-  margin-top: 0.5rem;
-  font-size: 1rem;
-  font-weight: 500;
   text-align: center;
+  color: #4caf50;
+  margin-top: 1rem;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.error {
+  text-align: center;
+  color: #f44336;
+  margin-bottom: 1rem;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.loading {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .preview {
-  margin-top: 1.5rem;
+  margin-top: 3rem;
   text-align: center;
-  background: #f5f5f5;
-  border-radius: 12px;
-  padding: 1.5rem;
-  width: 100%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.preview h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-family: 'Judson', serif;
 }
 
 .avatar {
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
+  margin-bottom: 1rem;
   border: 3px solid #ff9800;
-  margin-bottom: 0.5rem;
 }
 
 .previewName {
-  font-size: 1.2rem;
-  color: #2c3e50;
-  font-weight: bold;
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-family: 'Judson', serif;
+}
+
+.previewLocation {
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-family: 'Roboto Mono', monospace;
 }
 
 .previewBio {
-  color: #666;
-  font-size: 1rem;
-  margin-top: 0.5rem;
+  color: #444;
+  max-width: 500px;
+  margin: 0 auto 1rem;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.previewSocial {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.previewSocial a {
+  color: #ff9800;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ff9800;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.previewSocial a:hover {
+  background: #ff9800;
+  color: white;
 }
 
 @media (max-width: 768px) {
@@ -121,5 +178,14 @@ h1 {
   
   .profileBox {
     padding: 1.5rem;
+  }
+  
+  .form {
+    gap: 1rem;
+  }
+  
+  .avatar {
+    width: 100px;
+    height: 100px;
   }
 } 
