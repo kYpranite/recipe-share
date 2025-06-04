@@ -18,18 +18,28 @@ router.get('/search', auth, async (req, res) => {
     
     const [users, total] = await Promise.all([
       User.find({
-        $or: [
-          { name: searchRegex },
-          { email: searchRegex }
+        $and: [
+          { _id: { $ne: req.user.id } },
+          {
+            $or: [
+              { name: searchRegex },
+              { email: searchRegex }
+            ]
+          }
         ]
       })
       .select('-password -__v')
       .skip(skip)
       .limit(parseInt(limit)),
       User.countDocuments({
-        $or: [
-          { name: searchRegex },
-          { email: searchRegex }
+        $and: [
+          { _id: { $ne: req.user.id } },
+          {
+            $or: [
+              { name: searchRegex },
+              { email: searchRegex }
+            ]
+          }
         ]
       })
     ]);
@@ -53,12 +63,12 @@ router.get('/initial', auth, async (req, res) => {
     const skip = (page - 1) * limit;
 
     const [users, total] = await Promise.all([
-      User.find()
+      User.find({ _id: { $ne: req.user.id } })
         .select('-password -__v')
         .sort({ createdAt: -1 }) // Sort by newest first
         .skip(skip)
         .limit(parseInt(limit)),
-      User.countDocuments()
+      User.countDocuments({ _id: { $ne: req.user.id } })
     ]);
 
     res.json({

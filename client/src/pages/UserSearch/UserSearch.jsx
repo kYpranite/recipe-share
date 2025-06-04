@@ -5,7 +5,8 @@ import styles from './UserSearch.module.css';
 
 function UserSearch() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,21 +14,25 @@ function UserSearch() {
   const { token } = useAuth();
   const navigate = useNavigate();
 
+  // Load initial users when component mounts
   useEffect(() => {
     loadInitialUsers();
   }, []);
 
+  // Filter users whenever searchTerm changes
   useEffect(() => {
-    const searchTimeout = setTimeout(() => {
-      if (searchTerm.trim()) {
-        handleSearch();
-      } else {
-        loadInitialUsers();
-      }
-    }, 300); 
+    if (!searchTerm.trim()) {
+      setFilteredUsers(allUsers);
+      return;
+    }
 
-    return () => clearTimeout(searchTimeout);
-  }, [searchTerm]);
+    const searchLower = searchTerm.toLowerCase();
+    const filtered = allUsers.filter(user => 
+      user.name.toLowerCase().includes(searchLower) ||
+      user.email.toLowerCase().includes(searchLower)
+    );
+    setFilteredUsers(filtered);
+  }, [searchTerm, allUsers]);
 
   const loadInitialUsers = async () => {
     setIsLoading(true);
@@ -45,52 +50,13 @@ function UserSearch() {
       }
 
       const data = await response.json();
-      // Sort users alphabetically by name
-      const sortedUsers = data.users.sort((a, b) => a.name.localeCompare(b.name));
-      setSearchResults(sortedUsers);
+      setAllUsers(data.users);
+      setFilteredUsers(data.users);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
       setError('Failed to load users. Please try again.');
       console.error('Load error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      loadInitialUsers();
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    setCurrentPage(1);
-
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/users/search?query=${encodeURIComponent(searchTerm)}&page=1&limit=9`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to search users');
-      }
-
-      const data = await response.json();
-      // Sort users alphabetically by name
-      const sortedUsers = data.users.sort((a, b) => a.name.localeCompare(b.name));
-      setSearchResults(sortedUsers);
-      setHasMore(data.hasMore);
-      setCurrentPage(data.currentPage);
-    } catch (err) {
-      setError('Failed to search users. Please try again.');
-      console.error('Search error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -103,25 +69,22 @@ function UserSearch() {
     const nextPage = currentPage + 1;
 
     try {
-      const url = searchTerm.trim()
-        ? `http://localhost:3000/api/users/search?query=${encodeURIComponent(searchTerm)}&page=${nextPage}&limit=9`
-        : `http://localhost:3000/api/users/initial?page=${nextPage}&limit=9`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `http://localhost:3000/api/users/initial?page=${nextPage}&limit=9`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to load more users');
       }
 
       const data = await response.json();
-      // Combine existing and new users, then sort the entire list
-      const combinedUsers = [...searchResults, ...data.users];
-      const sortedUsers = combinedUsers.sort((a, b) => a.name.localeCompare(b.name));
-      setSearchResults(sortedUsers);
+      setAllUsers(prev => [...prev, ...data.users]);
+      setFilteredUsers(prev => [...prev, ...data.users]);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -132,15 +95,15 @@ function UserSearch() {
     }
   };
 
-  const handleViewProfile = (username) => {
-    navigate(`/profile/${username}`);
+  const handleUserClick = (userId) => {
+    navigate(`/profile/${userId}`);
   };
 
   return (
     <div className={styles.container}>
-      <h1>Discover Users</h1>
+      <h1>Search Users</h1>
       
-      <form onSubmit={(e) => e.preventDefault()} className={styles.searchForm}>
+      <div className={styles.searchForm}>
         <input
           type="text"
           value={searchTerm}
@@ -148,45 +111,40 @@ function UserSearch() {
           placeholder="Search by username or name..."
           className={styles.searchInput}
         />
-        <button type="submit" className={styles.searchButton}>
-          Search
-        </button>
-      </form>
+      </div>
 
-      {isLoading && currentPage === 1 && (
-        <div className={styles.loadingState}>
-          <p>Loading users...</p>
-        </div>
-      )}
-      
+      {isLoading && currentPage === 1 && <p>Loading...</p>}
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.results}>
-        {searchResults.length === 0 && !isLoading ? (
-          <p className={styles.emptyState}>No users found</p>
+        {filteredUsers.length === 0 && !isLoading ? (
+          <p>No users found</p>
         ) : (
           <>
-            {searchResults.map(user => (
-              <div key={user._id} className={styles.userCard}>
+            {filteredUsers.map(user => (
+              <div 
+                key={user._id} 
+                className={styles.userCard}
+                onClick={() => handleUserClick(user._id)}
+              >
                 <img 
-                  src={user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'} 
+                  src={user.profilePicture || '/default-avatar.png'} 
                   alt={user.name}
                   className={styles.avatar}
-                  onClick={() => handleViewProfile(user.username)}
-                  style={{ cursor: 'pointer' }}
                 />
                 <div className={styles.userInfo}>
-                  <h3 onClick={() => handleViewProfile(user.username)} style={{ cursor: 'pointer' }}>
-                    {user.name}
-                  </h3>
-                  <p className={styles.username}>{user.username}</p>
-                  <p className={styles.bio}>{user.bio}</p>
+                  <h3>{user.name}</h3>
+                  <p className={styles.username}>{user.email}</p>
+                  {user.bio && <p className={styles.bio}>{user.bio}</p>}
                 </div>
                 <button 
                   className={styles.followButton}
-                  onClick={() => handleViewProfile(user.username)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click when clicking follow button
+                    // TODO: Implement follow functionality
+                  }}
                 >
-                  View Profile
+                  Follow
                 </button>
               </div>
             ))}
