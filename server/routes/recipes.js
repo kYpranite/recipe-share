@@ -58,6 +58,23 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
+// Get recent recipes
+router.get('/recent', auth, async (req, res) => {
+  console.log('GET /api/recipes/recent - Fetching recent recipes');
+  try {
+    const recipes = await Recipe.find({ isPrivate: false })
+      .populate('currentVersion')
+      .populate('originalAuthor', 'name profilePicture')
+      .sort({ updatedAt: -1 });
+
+    console.log(`Found ${recipes.length} recipes`);
+    res.json(recipes);
+  } catch (error) {
+    console.error('Error fetching recipes:', error);
+    res.status(500).json({ message: 'Error fetching recipes', error: error.message });
+  }
+});
+
 // Get single recipe
 router.get('/:id', auth, async (req, res) => {
   console.log('GET /api/recipes/:id - Fetching recipe');
