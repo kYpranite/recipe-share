@@ -71,6 +71,7 @@ export default function UserProfile() {
 
         const recipesData = await recipesResponse.json();
         setRecipes(recipesData.recipes || []);
+        console.log('recipesData', recipesData.recipes);
 
         // Fetch followers and following
         const followersResponse = await fetch(
@@ -280,16 +281,16 @@ export default function UserProfile() {
           recipes.length > 0 ? (
             <div className={styles.recipeGrid}>
               {recipes.map(recipe => (
-                <div key={recipe.id} className={styles.recipeCard} onClick={() => handleViewRecipe(recipe.id)}>
+                <div key={recipe._id} className={styles.recipeCard} onClick={() => handleViewRecipe(recipe._id)}>
                   <div className={styles.recipeImage}>
-                    {recipe.image ? (
-                      <img src={recipe.image} alt={recipe.title} />
+                    {recipe.currentVersion.images[0] ? (
+                      <img src={recipe.currentVersion.images[0].url} alt={recipe.title} />
                     ) : (
                       <div className={styles.placeholderImage}></div>
                     )}
                   </div>
                   <div className={styles.recipeInfo}>
-                    <h3 className={styles.recipeTitle}>{recipe.title}</h3>
+                    <h3 className={styles.recipeTitle}>{recipe.name}</h3>
                     <p className={styles.recipeCuisine}>{recipe.cuisine}</p>
                   </div>
                 </div>
