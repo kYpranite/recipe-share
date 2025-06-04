@@ -10,6 +10,7 @@ function UserSearch() {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [followStatus, setFollowStatus] = useState({});
   const { token, user } = useAuth();
   const navigate = useNavigate();
 
@@ -24,6 +25,33 @@ function UserSearch() {
       loadInitialUsers();
     }
   }, []);
+
+  // Check follow status for all users
+  const checkFollowStatus = async (users) => {
+    const statusPromises = users.map(async (user) => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/users/${user._id}/is-following`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        if (response.ok) {
+          const { isFollowing } = await response.json();
+          return [user._id, isFollowing];
+        }
+        return [user._id, false];
+      } catch (err) {
+        console.error(`Error checking follow status for user ${user._id}:`, err);
+        return [user._id, false];
+      }
+    });
+
+    const statuses = await Promise.all(statusPromises);
+    return Object.fromEntries(statuses);
+  };
 
   // Debounce search
   useEffect(() => {
@@ -58,6 +86,11 @@ function UserSearch() {
       const filteredUsers = filterCurrentUser(data.users);
       const sortedUsers = filteredUsers.sort((a, b) => a.name.localeCompare(b.name));
       setUsers(sortedUsers);
+      
+      // Check follow status for all users
+      const newFollowStatus = await checkFollowStatus(sortedUsers);
+      setFollowStatus(newFollowStatus);
+      
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -97,6 +130,11 @@ function UserSearch() {
       const filteredUsers = filterCurrentUser(data.users);
       const sortedUsers = filteredUsers.sort((a, b) => a.name.localeCompare(b.name));
       setUsers(sortedUsers);
+      
+      // Check follow status for all users
+      const newFollowStatus = await checkFollowStatus(sortedUsers);
+      setFollowStatus(newFollowStatus);
+      
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -104,6 +142,48 @@ function UserSearch() {
       console.error('Search error:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleFollow = async (userId, e) => {
+    e.stopPropagation();
+    if (!user || user._id === userId) return;
+
+    try {
+      const isFollowing = followStatus[userId];
+      const endpoint = isFollowing ? 'unfollow' : 'follow';
+      const response = await fetch(`http://localhost:3000/api/users/${userId}/${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${endpoint} user`);
+      }
+
+      // Update follow status
+      setFollowStatus(prev => ({
+        ...prev,
+        [userId]: !isFollowing
+      }));
+
+      // Update user's follower count in the list
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          u._id === userId
+            ? {
+                ...u,
+                followerCount: isFollowing
+                  ? (u.followerCount || 0) - 1
+                  : (u.followerCount || 0) + 1
+              }
+            : u
+        )
+      );
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -133,6 +213,11 @@ function UserSearch() {
       const filteredNewUsers = filterCurrentUser(data.users);
       // Simply append new users to the existing list without sorting
       setUsers(prevUsers => [...prevUsers, ...filteredNewUsers]);
+      
+      // Check follow status for new users
+      const newFollowStatus = await checkFollowStatus(filteredNewUsers);
+      setFollowStatus(prev => ({...prev, ...newFollowStatus}));
+      
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -186,13 +271,10 @@ function UserSearch() {
                   {user.bio && <p className={styles.bio}>{user.bio}</p>}
                 </div>
                 <button 
-                  className={styles.followButton}
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent card click when clicking follow button
-                    // TODO: Implement follow functionality
-                  }}
+                  className={followStatus[user._id] ? styles.unfollowButton : styles.followButton}
+                  onClick={(e) => handleFollow(user._id, e)}
                 >
-                  Follow
+                  {followStatus[user._id] ? 'Unfollow' : 'Follow'}
                 </button>
               </div>
             ))}

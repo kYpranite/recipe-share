@@ -134,11 +134,10 @@
   font-family: 'Roboto Mono', monospace;
 }
 
-.followButton {
+.followButton,
+.unfollowButton {
   margin-top: 1rem;
   padding: 0.5rem 1.5rem;
-  background: linear-gradient(90deg, #ffb347 0%, #ff9800 100%);
-  color: white;
   border: none;
   border-radius: 20px;
   cursor: pointer;
@@ -151,13 +150,32 @@
   box-shadow: 0 1px 4px rgba(255, 152, 0, 0.08);
 }
 
+.followButton {
+  background: linear-gradient(90deg, #ffb347 0%, #ff9800 100%);
+  color: white;
+}
+
 .followButton:hover {
   background: #ffd699;
   color: #ff9800;
   transform: translateY(-2px) scale(1.04);
 }
 
-.followButton:active {
+.unfollowButton {
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.unfollowButton:hover {
+  background: #e9ecef;
+  color: #dc3545;
+  border-color: #dc3545;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.followButton:active,
+.unfollowButton:active {
   transform: translateY(0);
 }
 
