@@ -8,6 +8,7 @@ import CreateRecipe from './pages/CreateRecipe';
 import EditProfile from './pages/EditProfile';
 import RecipeDetail from './pages/RecipeDetail';
 import UserProfile from './pages/UserProfile';
+import UserProfileDetail from './pages/UserProfile/UserProfileDetail';
 import UserSearch from './pages/UserSearch/UserSearch';
 import NavBar from './components/NavBar';
 import './App.css'
@@ -70,10 +71,10 @@ function App() {
               } 
             />
             <Route 
-              path="/profile/:username" 
+              path="/profile/:userId" 
               element={
                 <ProtectedRoute>
-                  <UserProfile />
+                  <UserProfileDetail />
                 </ProtectedRoute>
               } 
             />

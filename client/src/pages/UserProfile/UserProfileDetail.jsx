@@ -1,113 +1,135 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import SocialLinks from '../components/SocialLinks';
-import styles from './UserProfile.module.css';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import styles from './UserProfileDetail.module.css';
 
-export default function UserProfile() {
+export default function UserProfileDetail() {
+  const { userId } = useParams();
   const navigate = useNavigate();
-  const { user, token } = useAuth();
-  const [profile, setProfile] = useState(null);
+  const { token, user: currentUser } = useAuth();
+  const [user, setUser] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('recipes');
 
   useEffect(() => {
-    const fetchProfileData = async () => {
+    const fetchUserData = async () => {
       try {
         if (!token) {
           throw new Error('Authentication required');
         }
 
         // Fetch user profile
-        const profileResponse = await fetch(
-          'http://localhost:3000/api/users/profile',
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        const profileResponse = await fetch(`http://localhost:3000/api/users/profile/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-        );
+        });
 
         if (!profileResponse.ok) {
-          const errorData = await profileResponse.json();
-          throw new Error(errorData.message || 'Failed to fetch profile');
+          throw new Error('Failed to load user profile');
         }
 
         const profileData = await profileResponse.json();
-        setProfile(profileData);
+        setUser(profileData);
 
         // Fetch user's recipes
-        const recipesResponse = await fetch(
-          'http://localhost:3000/api/users/me/recipes',
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        const recipesResponse = await fetch(`http://localhost:3000/api/users/${userId}/recipes`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-        );
+        });
 
-        if (!recipesResponse.ok) {
-          throw new Error('Failed to fetch recipes');
+        if (recipesResponse.ok) {
+          const recipesData = await recipesResponse.json();
+          setRecipes(recipesData.recipes || []);
         }
 
-        const recipesData = await recipesResponse.json();
-        setRecipes(recipesData.recipes || []);
-        console.log('recipesData', recipesData.recipes);
-
-        // Fetch followers and following
-        const followersResponse = await fetch(
-          `http://localhost:3000/api/users/${profileData._id}/followers`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        // Fetch followers
+        const followersResponse = await fetch(`http://localhost:3000/api/users/${userId}/followers`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-        );
+        });
 
         if (followersResponse.ok) {
           const followersData = await followersResponse.json();
           setFollowers(followersData.followers || []);
         }
 
-        const followingResponse = await fetch(
-          `http://localhost:3000/api/users/${profileData._id}/following`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        // Fetch following
+        const followingResponse = await fetch(`http://localhost:3000/api/users/${userId}/following`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-        );
+        });
 
         if (followingResponse.ok) {
           const followingData = await followingResponse.json();
           setFollowing(followingData.following || []);
         }
+
+        // Check if current user is following this user
+        if (currentUser && currentUser.id !== userId) {
+          const isFollowingResponse = await fetch(`http://localhost:3000/api/users/${userId}/is-following`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (isFollowingResponse.ok) {
+            const { isFollowing } = await isFollowingResponse.json();
+            setIsFollowing(isFollowing);
+          }
+        }
       } catch (err) {
-        console.error('Error fetching profile data:', err);
-        setError(err.message || 'Failed to load profile data');
+        setError(err.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     if (token) {
-      fetchProfileData();
+      fetchUserData();
     }
-  }, [token]);
+  }, [userId, token, currentUser]);
+
+  const handleFollow = async () => {
+    if (!currentUser || currentUser.id === userId) return;
+
+    try {
+      const endpoint = isFollowing ? 'unfollow' : 'follow';
+      const response = await fetch(`http://localhost:3000/api/users/${userId}/${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${endpoint} user`);
+      }
+
+      setIsFollowing(!isFollowing);
+      // Update the user's follower count
+      setUser(prev => ({
+        ...prev,
+        followerCount: isFollowing ? prev.followerCount - 1 : prev.followerCount + 1
+      }));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const handleViewRecipe = (recipeId) => {
     navigate(`/recipe/${recipeId}`);
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className={styles.loading}>Loading profile...</div>;
   }
 
@@ -115,63 +137,57 @@ export default function UserProfile() {
     return <div className={styles.error}>{error}</div>;
   }
 
-  if (!profile) {
-    return <div className={styles.error}>Profile not found</div>;
+  if (!user) {
+    return <div className={styles.error}>User not found</div>;
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.profileHeader}>
         <img
-          src={profile.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
+          src={user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
           alt="Profile"
           className={styles.avatar}
         />
         <div className={styles.profileInfo}>
-          <h1 className={styles.username}>{displayUsername}</h1>
-          {profile?.bio && <p className={styles.bio}>{profile.bio}</p>}
+          <h1 className={styles.username}>{user.name}</h1>
+          {user.bio && <p className={styles.bio}>{user.bio}</p>}
           
           <div className={styles.stats}>
             <div 
-              className={styles.stat}
+              className={styles.stat} 
               onClick={() => setActiveTab('recipes')}
+              style={{ cursor: 'pointer' }}
             >
-              <span className={styles.statNumber}>{profile.recipeCount || 0}</span>
+              <span className={styles.statNumber}>{user.recipeCount || 0}</span>
               <span className={styles.statLabel}>Recipes</span>
             </div>
             <div 
               className={styles.stat}
               onClick={() => setActiveTab('followers')}
+              style={{ cursor: 'pointer' }}
             >
-              <span className={styles.statNumber}>{profile.followerCount || 0}</span>
+              <span className={styles.statNumber}>{user.followerCount || 0}</span>
               <span className={styles.statLabel}>Followers</span>
             </div>
             <div 
               className={styles.stat}
               onClick={() => setActiveTab('following')}
+              style={{ cursor: 'pointer' }}
             >
-              <span className={styles.statNumber}>{profile.followingCount || 0}</span>
+              <span className={styles.statNumber}>{user.followingCount || 0}</span>
               <span className={styles.statLabel}>Following</span>
             </div>
           </div>
-          <div className={styles.actions}>
-            {isOwnProfile ? (
-              <button 
-                className={styles.editButton}
-                onClick={() => navigate('/edit-profile')}
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <button 
-                className={isFollowing ? styles.unfollowButton : styles.followButton}
-                onClick={handleFollow}
-              >
-                {isFollowing ? 'Unfollow' : 'Follow'}
-              </button>
-            )}
-            {profile?.socialLinks && <SocialLinks socialLinks={profile.socialLinks} />}
-          </div>
+          
+          {currentUser && currentUser.id !== userId && (
+            <button 
+              className={isFollowing ? styles.unfollowButton : styles.followButton}
+              onClick={handleFollow}
+            >
+              {isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -209,6 +225,9 @@ export default function UserProfile() {
                 <p>{recipe.description}</p>
               </div>
             ))}
+            {recipes.length === 0 && (
+              <div className={styles.emptyState}>No recipes yet</div>
+            )}
           </div>
         )}
 

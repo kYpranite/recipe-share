@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import Follow from '../models/Follow.js';
 import { auth } from '../middleware/auth.js';
 import Recipe from '../models/Recipe.js';
 
@@ -205,14 +206,13 @@ router.get('/:userId/recipes', auth, async (req, res) => {
 
 // Get user's followers
 router.get('/:userId/followers', auth, async (req, res) => {
-  console.log('GET /:userId/followers - Fetching user followers');
-  console.log('User ID:', req.params.userId);
-  
   try {
-    const userId = req.params.userId === 'me' ? req.user.id : req.params.userId;
-    // This endpoint will be implemented when we add the Follow model
-    // For now, return an empty array
-    res.json({ followers: [] });
+    const userId = req.params.userId;
+    const followers = await Follow.find({ following: userId })
+      .populate('follower', 'name email profilePicture')
+      .sort({ createdAt: -1 });
+
+    res.json({ followers: followers.map(f => f.follower) });
   } catch (error) {
     console.error('Error fetching followers:', error);
     res.status(500).json({ message: 'Error fetching followers', error: error.message });
@@ -221,14 +221,13 @@ router.get('/:userId/followers', auth, async (req, res) => {
 
 // Get user's following
 router.get('/:userId/following', auth, async (req, res) => {
-  console.log('GET /:userId/following - Fetching user following');
-  console.log('User ID:', req.params.userId);
-  
   try {
-    const userId = req.params.userId === 'me' ? req.user.id : req.params.userId;
-    // This endpoint will be implemented when we add the Follow model
-    // For now, return an empty array
-    res.json({ following: [] });
+    const userId = req.params.userId;
+    const following = await Follow.find({ follower: userId })
+      .populate('following', 'name email profilePicture')
+      .sort({ createdAt: -1 });
+
+    res.json({ following: following.map(f => f.following) });
   } catch (error) {
     console.error('Error fetching following:', error);
     res.status(500).json({ message: 'Error fetching following', error: error.message });
@@ -237,14 +236,12 @@ router.get('/:userId/following', auth, async (req, res) => {
 
 // Check if current user is following another user
 router.get('/:userId/is-following', auth, async (req, res) => {
-  console.log('GET /:userId/is-following - Checking follow status');
-  console.log('Target User ID:', req.params.userId);
-  console.log('Current User ID:', req.user.id);
-  
   try {
-    // This endpoint will be implemented when we add the Follow model
-    // For now, return false
-    res.json({ isFollowing: false });
+    const followerId = req.user.id;
+    const followingId = req.params.userId;
+
+    const follow = await Follow.findOne({ follower: followerId, following: followingId });
+    res.json({ isFollowing: !!follow });
   } catch (error) {
     console.error('Error checking follow status:', error);
     res.status(500).json({ message: 'Error checking follow status', error: error.message });
@@ -264,6 +261,65 @@ router.get('/:userId/liked-recipes', auth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching liked recipes:', error);
     res.status(500).json({ message: 'Error fetching liked recipes', error: error.message });
+  }
+});
+
+// Follow a user
+router.post('/:userId/follow', auth, async (req, res) => {
+  try {
+    const followerId = req.user.id;
+    const followingId = req.params.userId;
+
+    // Prevent self-following
+    if (followerId === followingId) {
+      return res.status(400).json({ message: 'Cannot follow yourself' });
+    }
+
+    // Check if follow relationship already exists
+    const existingFollow = await Follow.findOne({ follower: followerId, following: followingId });
+    if (existingFollow) {
+      return res.status(400).json({ message: 'Already following this user' });
+    }
+
+    // Create follow relationship
+    const follow = new Follow({
+      follower: followerId,
+      following: followingId
+    });
+    await follow.save();
+
+    // Update follower and following counts
+    await User.findByIdAndUpdate(followerId, { $inc: { followingCount: 1 } });
+    await User.findByIdAndUpdate(followingId, { $inc: { followerCount: 1 } });
+
+    res.json({ message: 'Successfully followed user' });
+  } catch (error) {
+    console.error('Error following user:', error);
+    res.status(500).json({ message: 'Error following user', error: error.message });
+  }
+});
+
+// Unfollow a user
+router.post('/:userId/unfollow', auth, async (req, res) => {
+  try {
+    const followerId = req.user.id;
+    const followingId = req.params.userId;
+
+    // Delete follow relationship
+    const result = await Follow.findOneAndDelete({ follower: followerId, following: followingId });
+    
+    if (!result) {
+      return res.status(400).json({ message: 'Not following this user' });
+    }
+
+    // Update follower and following counts
+    await User.findByIdAndUpdate(followerId, { $inc: { followingCount: -1 } });
+    await User.findByIdAndUpdate(followingId, { $inc: { followerCount: -1 } });
+
+    res.json({ message: 'Successfully unfollowed user' });
+  } catch (error) {
+    console.error('Error unfollowing user:', error);
+    res.status(500).json({ message: 'Error unfollowing user', error: error.message });
   }
 });
 
