@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import CommentSection from '../components/CommentSection';
 import RatingStars from '../components/RatingStars';
 import LikeButton from '../components/LikeButton';
-import VersionHistory from '../components/VersionHistory';
+import VersionHistoryModal from '../components/VersionHistoryModal';
 import styles from './RecipeDetail.module.css';
 
 export default function RecipeDetail() {
@@ -18,6 +18,7 @@ export default function RecipeDetail() {
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [averageRating, setAverageRating] = useState(0);
   const [userRating, setUserRating] = useState(0);
+  const [versionHistoryVisible, setVersionHistoryVisible] = useState(false);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -267,6 +268,12 @@ export default function RecipeDetail() {
         <button className={styles.forkButton} onClick={handleFork}>
           Fork Recipe
         </button>
+        <button 
+          className={styles.versionButton} 
+          onClick={() => setVersionHistoryVisible(!versionHistoryVisible)}
+        >
+          Version History
+        </button>
         {user && user.id === recipe.originalAuthor && (
           <>
             <button 
@@ -288,16 +295,16 @@ export default function RecipeDetail() {
         </button>
       </div>
 
-      {versions.length > 0 && (
-        <VersionHistory
-          versions={versions}
-          currentVersion={selectedVersion || recipe.currentVersion}
-          onVersionSelect={handleViewVersion}
-          onFork={handleFork}
-          onRevert={handleRevert}
-          isAuthor={user && user.id === recipe.originalAuthor}
-        />
-      )}
+      <VersionHistoryModal
+        isOpen={versionHistoryVisible}
+        onClose={() => setVersionHistoryVisible(false)}
+        versions={versions}
+        currentVersion={selectedVersion || recipe.currentVersion}
+        onVersionSelect={handleViewVersion}
+        onFork={handleFork}
+        onRevert={handleRevert}
+        isAuthor={user && user.id === recipe.originalAuthor}
+      />
 
       <CommentSection recipeId={id} />
     </div>

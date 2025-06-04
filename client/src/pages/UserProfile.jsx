@@ -123,7 +123,7 @@ export default function UserProfile() {
     <div className={styles.container}>
       <div className={styles.profileHeader}>
         <img
-          src={profile.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
+          src={profile?.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
           alt="Profile"
           className={styles.avatar}
         />

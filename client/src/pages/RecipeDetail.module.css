@@ -226,7 +226,8 @@
 .forkButton,
 .editButton,
 .backButton,
-.deleteButton {
+.deleteButton,
+.versionButton {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -270,6 +271,15 @@
 
 .deleteButton:hover {
   background-color: #d32f2f;
+}
+
+.versionButton {
+  background-color: #9C27B0;
+  color: white;
+}
+
+.versionButton:hover {
+  background-color: #7B1FA2;
 }
 
 @media (max-width: 768px) {
