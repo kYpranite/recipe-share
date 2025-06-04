@@ -221,8 +221,17 @@ export default function UserProfileDetail() {
                 className={styles.recipeCard}
                 onClick={() => handleViewRecipe(recipe._id)}
               >
-                <h3>{recipe.title}</h3>
-                <p>{recipe.description}</p>
+                <div className={styles.recipeImage}>
+                  {recipe.currentVersion?.images?.[0]?.url ? (
+                    <img src={recipe.currentVersion.images[0].url} alt={recipe.name} />
+                  ) : (
+                    <div className={styles.placeholderImage}></div>
+                  )}
+                </div>
+                <div className={styles.recipeInfo}>
+                  <h3 className={styles.recipeTitle}>{recipe.name}</h3>
+                  {recipe.cuisine && <p className={styles.recipeCuisine}>{recipe.cuisine}</p>}
+                </div>
               </div>
             ))}
             {recipes.length === 0 && (
