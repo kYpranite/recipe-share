@@ -48,7 +48,7 @@ export default function RecipeCard({ id, title, cuisine, author, avatar, about, 
     <div className={styles.recipeCard}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.5rem' }}>
         <img
-          src={avatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
+          src={avatar || user?.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
           alt="author avatar"
           style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #ffecb3' }}
           onClick={handleAuthorClick}
@@ -93,7 +93,7 @@ export default function RecipeCard({ id, title, cuisine, author, avatar, about, 
         </p>
       )}
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', marginTop: '0.5rem' }}>
         {averageRating > 0 && (
           <div className={styles.cardRating}>
             <span className={styles.ratingValue}>{averageRating.toFixed(1)}</span>

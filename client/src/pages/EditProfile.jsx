@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './EditProfile.module.css';
 
 export default function EditProfile() {
-  const { user, token } = useAuth();
+  const { user, token, login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -134,6 +134,14 @@ export default function EditProfile() {
       console.log('Received updated profile:', updatedProfile);
       setFormData(prev => ({ ...prev, ...updatedProfile }));
       setSaved(true);
+      
+      // Update the user state in auth context
+      const updatedUser = {
+        ...user,
+        name: updatedProfile.name,
+        profilePicture: updatedProfile.profilePicture
+      };
+      login(updatedUser, token);
       
       // Show success message briefly before redirecting
       setTimeout(() => navigate('/profile'), 1500);
