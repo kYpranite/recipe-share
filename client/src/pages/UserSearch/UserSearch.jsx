@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import styles from './UserSearch.module.css';
 
 function UserSearch() {
@@ -10,11 +11,23 @@ function UserSearch() {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
-  // Load initial users when component mounts
   useEffect(() => {
     loadInitialUsers();
   }, []);
+
+  useEffect(() => {
+    const searchTimeout = setTimeout(() => {
+      if (searchTerm.trim()) {
+        handleSearch();
+      } else {
+        loadInitialUsers();
+      }
+    }, 300); 
+
+    return () => clearTimeout(searchTimeout);
+  }, [searchTerm]);
 
   const loadInitialUsers = async () => {
     setIsLoading(true);
@@ -43,8 +56,7 @@ function UserSearch() {
     }
   };
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  const handleSearch = async () => {
     if (!searchTerm.trim()) {
       loadInitialUsers();
       return;
@@ -113,11 +125,15 @@ function UserSearch() {
     }
   };
 
+  const handleViewProfile = (username) => {
+    navigate(`/profile/${username}`);
+  };
+
   return (
     <div className={styles.container}>
-      <h1>Search Users</h1>
+      <h1>Discover Users</h1>
       
-      <form onSubmit={handleSearch} className={styles.searchForm}>
+      <form onSubmit={(e) => e.preventDefault()} className={styles.searchForm}>
         <input
           type="text"
           value={searchTerm}
@@ -130,28 +146,40 @@ function UserSearch() {
         </button>
       </form>
 
-      {isLoading && currentPage === 1 && <p>Loading...</p>}
+      {isLoading && currentPage === 1 && (
+        <div className={styles.loadingState}>
+          <p>Loading users...</p>
+        </div>
+      )}
+      
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.results}>
         {searchResults.length === 0 && !isLoading ? (
-          <p>No users found</p>
+          <p className={styles.emptyState}>No users found</p>
         ) : (
           <>
             {searchResults.map(user => (
               <div key={user._id} className={styles.userCard}>
                 <img 
-                  src={user.profilePicture || '/default-avatar.png'} 
+                  src={user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'} 
                   alt={user.name}
                   className={styles.avatar}
+                  onClick={() => handleViewProfile(user.username)}
+                  style={{ cursor: 'pointer' }}
                 />
                 <div className={styles.userInfo}>
-                  <h3>{user.name}</h3>
-                  <p className={styles.username}>{user.email}</p>
-                  {user.bio && <p className={styles.bio}>{user.bio}</p>}
+                  <h3 onClick={() => handleViewProfile(user.username)} style={{ cursor: 'pointer' }}>
+                    {user.name}
+                  </h3>
+                  <p className={styles.username}>{user.username}</p>
+                  <p className={styles.bio}>{user.bio}</p>
                 </div>
-                <button className={styles.followButton}>
-                  Follow
+                <button 
+                  className={styles.followButton}
+                  onClick={() => handleViewProfile(user.username)}
+                >
+                  View Profile
                 </button>
               </div>
             ))}
