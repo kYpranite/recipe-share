@@ -51,6 +51,7 @@ export default function NavBar() {
         <div className={styles.links}>
           <Link to="/home">Home</Link>
           <Link to="/create-recipe">Create Recipe</Link>
+          <Link to="/search-users">Search Users</Link>
         </div>
         
         <form onSubmit={handleSearch} className={styles.searchContainer}>

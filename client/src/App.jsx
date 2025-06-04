@@ -8,6 +8,7 @@ import CreateRecipe from './pages/CreateRecipe';
 import EditProfile from './pages/EditProfile';
 import RecipeDetail from './pages/RecipeDetail';
 import UserProfile from './pages/UserProfile';
+import UserSearch from './pages/UserSearch/UserSearch';
 import NavBar from './components/NavBar';
 import './App.css'
 
@@ -73,6 +74,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <UserProfile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/search-users" 
+              element={
+                <ProtectedRoute>
+                  <UserSearch />
                 </ProtectedRoute>
               } 
             />
