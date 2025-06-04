@@ -35,6 +35,10 @@ const recipeSchema = new mongoose.Schema({
     ref: 'Recipe',
     default: null
   },
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment'
+  }],
   isPrivate: {
     type: Boolean,
     default: false
@@ -82,6 +86,12 @@ recipeSchema.methods.addVersion = async function(versionData) {
   await this.save();
   
   return newVersion;
+};
+
+// Method to add a comment to the recipe
+recipeSchema.methods.addComment = async function(commentId) {
+  this.comments.push(commentId);
+  return await this.save();
 };
 
 const Recipe = mongoose.model('Recipe', recipeSchema);
