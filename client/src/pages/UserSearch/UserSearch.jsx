@@ -5,8 +5,7 @@ import styles from './UserSearch.module.css';
 
 function UserSearch() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [allUsers, setAllUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,23 +20,23 @@ function UserSearch() {
 
   // Load initial users when component mounts
   useEffect(() => {
-    loadInitialUsers();
+    if (!searchTerm.trim()) {
+      loadInitialUsers();
+    }
   }, []);
 
-  // Filter users whenever searchTerm changes
+  // Debounce search
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredUsers(allUsers);
-      return;
-    }
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm.trim()) {
+        handleSearch();
+      } else {
+        loadInitialUsers();
+      }
+    }, 300);
 
-    const searchLower = searchTerm.toLowerCase();
-    const filtered = allUsers.filter(user => 
-      user.name.toLowerCase().includes(searchLower) ||
-      user.email.toLowerCase().includes(searchLower)
-    );
-    setFilteredUsers(filtered);
-  }, [searchTerm, allUsers]);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   const loadInitialUsers = async () => {
     setIsLoading(true);
@@ -58,8 +57,7 @@ function UserSearch() {
       // Filter out current user and sort
       const filteredUsers = filterCurrentUser(data.users);
       const sortedUsers = filteredUsers.sort((a, b) => a.name.localeCompare(b.name));
-      setAllUsers(sortedUsers);
-      setFilteredUsers(sortedUsers);
+      setUsers(sortedUsers);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -70,8 +68,7 @@ function UserSearch() {
     }
   };
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  const handleSearch = async () => {
     if (!searchTerm.trim()) {
       loadInitialUsers();
       return;
@@ -99,8 +96,7 @@ function UserSearch() {
       // Filter out current user and sort
       const filteredUsers = filterCurrentUser(data.users);
       const sortedUsers = filteredUsers.sort((a, b) => a.name.localeCompare(b.name));
-      setAllUsers(sortedUsers);
-      setFilteredUsers(sortedUsers);
+      setUsers(sortedUsers);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -118,14 +114,15 @@ function UserSearch() {
     const nextPage = currentPage + 1;
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/users/initial?page=${nextPage}&limit=9`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+      const endpoint = searchTerm.trim()
+        ? `http://localhost:3000/api/users/search?query=${encodeURIComponent(searchTerm)}&page=${nextPage}&limit=9`
+        : `http://localhost:3000/api/users/initial?page=${nextPage}&limit=9`;
+
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      );
+      });
 
       if (!response.ok) {
         throw new Error('Failed to load more users');
@@ -134,11 +131,8 @@ function UserSearch() {
       const data = await response.json();
       // Filter out current user from new results
       const filteredNewUsers = filterCurrentUser(data.users);
-      // Combine and sort all users
-      const combinedUsers = [...allUsers, ...filteredNewUsers];
-      const sortedUsers = combinedUsers.sort((a, b) => a.name.localeCompare(b.name));
-      setAllUsers(sortedUsers);
-      setFilteredUsers(sortedUsers);
+      // Simply append new users to the existing list without sorting
+      setUsers(prevUsers => [...prevUsers, ...filteredNewUsers]);
       setHasMore(data.hasMore);
       setCurrentPage(data.currentPage);
     } catch (err) {
@@ -157,7 +151,7 @@ function UserSearch() {
     <div className={styles.container}>
       <h1>Search Users</h1>
       
-      <form onSubmit={handleSearch} className={styles.searchForm}>
+      <div className={styles.searchForm}>
         <input
           type="text"
           value={searchTerm}
@@ -165,20 +159,17 @@ function UserSearch() {
           placeholder="Search by username or name..."
           className={styles.searchInput}
         />
-        <button type="submit" className={styles.searchButton}>
-          Search
-        </button>
-      </form>
+      </div>
 
-      {isLoading && currentPage === 1 && <p>Loading...</p>}
+      {isLoading && users.length === 0 && <p>Loading...</p>}
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.results}>
-        {filteredUsers.length === 0 && !isLoading ? (
+        {users.length === 0 && !isLoading ? (
           <p>No users found</p>
         ) : (
           <>
-            {filteredUsers.map(user => (
+            {users.map(user => (
               <div 
                 key={user._id} 
                 className={styles.userCard}
