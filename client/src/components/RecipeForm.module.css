@@ -71,13 +71,41 @@
 
 .ingredientInput {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  width: 100%;
 }
 
-.ingredientInput input {
+.ingredientFields {
+  display: flex;
+  gap: 1rem;
   flex: 1;
 }
+
+.quantityInput {
+  width: 100px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.unitSelect {
+  width: 140px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  color:;
+}
+
+.ingredientNameInput {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
 
 .removeButton {
   padding: 0.5rem 1rem;
