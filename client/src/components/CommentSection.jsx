@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import styles from './CommentSection.module.css';
 
 const LOCAL_COMMENTS_KEY = 'dev_comments';
 
 export default function CommentSection({ recipeId }) {
-  const { user, isDevMode } = useAuth();
+  const { user, token, isDevMode } = useAuth();
+  const navigate = useNavigate();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState('');
@@ -24,10 +26,14 @@ export default function CommentSection({ recipeId }) {
 
   const fetchComments = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${recipeId}/comments`);
+      const response = await fetch(`http://localhost:3000/api/comments/recipe/${recipeId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch comments');
       const data = await response.json();
-      setComments(data.comments);
+      setComments(data);
     } catch (err) {
       setError('Failed to load comments');
     }
@@ -37,41 +43,100 @@ export default function CommentSection({ recipeId }) {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    const comment = {
-      id: Date.now().toString(),
-      text: newComment,
-      author: user.name,
-      authorAvatar: user.avatar,
-      createdAt: new Date().toISOString()
-    };
-
     try {
       if (isDevMode) {
+        console.log("HERE");
         // Save to localStorage in dev mode
         const storedComments = localStorage.getItem(LOCAL_COMMENTS_KEY);
         const allComments = storedComments ? JSON.parse(storedComments) : {};
         const recipeComments = allComments[recipeId] || [];
+        const comment = {
+          id: Date.now().toString(),
+          content: newComment,
+          author: {
+            name: user.name,
+            profilePicture: user.avatar
+          },
+          createdAt: new Date().toISOString(),
+          likes: [],
+          likeCount: 0
+        };
         allComments[recipeId] = [...recipeComments, comment];
         localStorage.setItem(LOCAL_COMMENTS_KEY, JSON.stringify(allComments));
         setComments(allComments[recipeId]);
       } else {
-        // Save to API in production
-        const response = await fetch(`http://localhost:3000/api/recipes/${recipeId}/comments`, {
+        const response = await fetch(`http://localhost:3000/api/comments/${recipeId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`
+            'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ text: newComment })
+          body: JSON.stringify({ content: newComment })
         });
         if (!response.ok) throw new Error('Failed to post comment');
-        const data = await response.json();
-        setComments(prev => [...prev, data.comment]);
+        const comment = await response.json();
+        setComments(prev => [comment, ...prev]);
       }
       setNewComment('');
     } catch (err) {
       setError('Failed to post comment');
     }
+  };
+
+  const handleLike = async (commentId) => {
+    if (isDevMode) {
+      // Handle likes in dev mode
+      const storedComments = localStorage.getItem(LOCAL_COMMENTS_KEY);
+      const allComments = storedComments ? JSON.parse(storedComments) : {};
+      const recipeComments = allComments[recipeId] || [];
+      
+      const updatedComments = recipeComments.map(comment => {
+        if (comment.id === commentId) {
+          const hasLiked = comment.likes.includes(user.id);
+          return {
+            ...comment,
+            likes: hasLiked 
+              ? comment.likes.filter(id => id !== user.id)
+              : [...comment.likes, user.id],
+            likeCount: hasLiked ? comment.likeCount - 1 : comment.likeCount + 1
+          };
+        }
+        return comment;
+      });
+      
+      allComments[recipeId] = updatedComments;
+      localStorage.setItem(LOCAL_COMMENTS_KEY, JSON.stringify(allComments));
+      setComments(updatedComments);
+    } else {
+      try {
+        const response = await fetch(`http://localhost:3000/api/comments/${commentId}/like`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) throw new Error('Failed to toggle like');
+        const updatedComment = await response.json();
+        setComments(prev => 
+          prev.map(comment => 
+            comment._id === commentId ? updatedComment : comment
+          )
+        );
+      } catch (err) {
+        setError('Failed to update like');
+      }
+    }
+  };
+
+  const isLiked = (comment) => {
+    if (isDevMode) {
+      return comment.likes?.includes(user.id);
+    }
+    return comment.likes?.includes(user._id);
+  };
+
+  const handleAuthorClick = (authorName) => {
+    navigate(`/profile/${authorName}`);
   };
 
   return (
@@ -98,21 +163,36 @@ export default function CommentSection({ recipeId }) {
           <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
         ) : (
           comments.map(comment => (
-            <div key={comment.id} className={styles.comment}>
+            <div key={comment._id || comment.id} className={styles.comment}>
               <div className={styles.commentHeader}>
                 <img
-                  src={comment.authorAvatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
+                  src={comment.author.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
                   alt="author avatar"
                   className={styles.authorAvatar}
                 />
                 <div className={styles.commentInfo}>
-                  <span className={styles.authorName}>{comment.author}</span>
+                  <span 
+                    className={styles.authorName}
+                    onClick={() => handleAuthorClick(comment.author.name)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {comment.author.name}
+                  </span>
                   <span className={styles.commentDate}>
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-              <p className={styles.commentText}>{comment.text}</p>
+              <p className={styles.commentText}>{comment.content}</p>
+              <div className={styles.commentActions}>
+                <button 
+                  onClick={() => handleLike(comment._id || comment.id)}
+                  className={`${styles.likeButton} ${isLiked(comment) ? styles.liked : ''}`}
+                >
+                  <span className={styles.likeIcon}>❤️</span>
+                  <span className={styles.likeCount}>{comment.likeCount || 0}</span>
+                </button>
+              </div>
             </div>
           ))
         )}

@@ -26,7 +26,8 @@ router.post('/', auth, async (req, res) => {
       originalAuthor: req.user.id,
       isPrivate: isPrivate || false,
       tags: tags || [],
-      cuisine
+      cuisine,
+      comments: [] // Initialize empty comments array
     });
 
     // Create initial version
@@ -65,6 +66,13 @@ router.get('/recent', auth, async (req, res) => {
     const recipes = await Recipe.find({ isPrivate: false })
       .populate('currentVersion')
       .populate('originalAuthor', 'name profilePicture')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'author',
+          select: 'name profilePicture'
+        }
+      })
       .sort({ updatedAt: -1 });
 
     console.log(`Found ${recipes.length} recipes`);
@@ -83,7 +91,14 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id)
       .populate('currentVersion')
-      .populate('originalAuthor', 'name profilePicture');
+      .populate('originalAuthor', 'name profilePicture')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'author',
+          select: 'name profilePicture'
+        }
+      });
 
     if (!recipe) {
       console.log('Recipe not found');

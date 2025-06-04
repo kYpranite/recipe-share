@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import userProfileRoutes from './routes/userProfile.js';
 import userSearchRoutes from './routes/userSearch.js';
 import recipeRoutes from './routes/recipes.js';
+import commentRoutes from './routes/comments.js';
 
 // Load environment variables
 dotenv.config();
@@ -37,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userProfileRoutes); // This mounts all user profile routes under /api/users
 app.use('/api/users', userSearchRoutes); // Add user search routes
 app.use('/api/recipes', recipeRoutes);
+app.use('/api/comments', commentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
