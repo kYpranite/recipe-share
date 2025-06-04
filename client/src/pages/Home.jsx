@@ -34,6 +34,7 @@ export default function Home() {
         throw new Error(`Failed to fetch recipes: ${response.status} ${response.statusText}`);
       }
 
+      const responseText = await response.text();
       const recipesData = JSON.parse(responseText);
       console.log("Recipes data:", recipesData);
       setRecipes(recipesData);
