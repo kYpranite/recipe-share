@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import userProfileRoutes from './routes/userProfile.js';
+import userSearchRoutes from './routes/userSearch.js';
 import recipeRoutes from './routes/recipes.js';
 
 // Load environment variables
@@ -34,6 +35,7 @@ mongoose.connect(uri)
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userProfileRoutes); // This mounts all user profile routes under /api/users
+app.use('/api/users', userSearchRoutes); // Add user search routes
 app.use('/api/recipes', recipeRoutes);
 
 app.listen(PORT, () => {
