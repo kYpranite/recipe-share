@@ -376,4 +376,39 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// Get version history including forks and ancestry chain
+router.get('/:id/versions', auth, async (req, res) => {
+  console.log('GET /api/recipes/:id/versions - Fetching version history and ancestry chain');
+  try {
+    let recipe = await Recipe.findById(req.params.id).populate('originalAuthor', 'name profilePicture');
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    // Build ancestry chain (from root to current)
+    const ancestry = [];
+    let current = recipe;
+    while (current) {
+      ancestry.unshift({
+        _id: current._id,
+        name: current.name,
+        author: current.originalAuthor,
+        createdAt: current.createdAt
+      });
+      if (!current.forkedFrom) break;
+      current = await Recipe.findById(current.forkedFrom).populate('originalAuthor', 'name profilePicture');
+    }
+
+    // Get all versions of the current recipe
+    const versions = await Version.find({ recipe: recipe._id })
+      .populate('author', 'name profilePicture')
+      .sort({ versionNumber: -1 });
+
+    res.json({ ancestry, versions });
+  } catch (error) {
+    console.error('Error fetching version history:', error);
+    res.status(500).json({ message: 'Error fetching version history', error: error.message });
+  }
+});
+
 export default router; 

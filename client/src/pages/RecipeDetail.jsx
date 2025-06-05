@@ -19,6 +19,7 @@ export default function RecipeDetail() {
   const [averageRating, setAverageRating] = useState(0);
   const [userRating, setUserRating] = useState(0);
   const [versionHistoryVisible, setVersionHistoryVisible] = useState(false);
+  const [ancestry, setAncestry] = useState([]);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -67,6 +68,7 @@ export default function RecipeDetail() {
         if (versionsResponse.ok) {
           const versionsData = await versionsResponse.json();
           setVersions(versionsData.versions || []);
+          setAncestry(versionsData.ancestry || []);
         }
 
       } catch (err) {
@@ -133,34 +135,8 @@ export default function RecipeDetail() {
     }
   };
 
-  const handleRevert = async (version) => {
-    if (!user) {
-      setError('You must be logged in to revert versions');
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}/revert`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ versionId: version._id })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to revert recipe');
-      }
-
-      const data = await response.json();
-      setRecipe(data.recipe);
-      setVersions(data.versions);
-      setSelectedVersion(null);
-    } catch (err) {
-      console.error('Error reverting recipe:', err);
-      setError(err.message);
-    }
+  const handleViewRecipe = (recipeId) => {
+    navigate(`/recipe/${recipeId}`);
   };
 
   const handleDelete = async () => {
@@ -308,12 +284,9 @@ export default function RecipeDetail() {
       <VersionHistoryModal
         isOpen={versionHistoryVisible}
         onClose={() => setVersionHistoryVisible(false)}
-        versions={versions}
-        currentVersion={selectedVersion || recipe.currentVersion}
-        onVersionSelect={handleViewVersion}
-        onFork={handleFork}
-        onRevert={handleRevert}
-        isAuthor={user && user.id === recipe.originalAuthor}
+        ancestry={ancestry}
+        currentRecipeId={id}
+        onViewRecipe={handleViewRecipe}
       />
 
       <CommentSection recipeId={id} />

@@ -4,12 +4,9 @@ import styles from './VersionHistoryModal.module.css';
 const VersionHistoryModal = ({ 
   isOpen, 
   onClose, 
-  versions, 
-  currentVersion, 
-  onVersionSelect, 
-  onFork, 
-  onRevert,
-  isAuthor 
+  ancestry, // array of recipes from root to current
+  currentRecipeId,
+  onViewRecipe
 }) => {
   if (!isOpen) return null;
 
@@ -23,6 +20,11 @@ const VersionHistoryModal = ({
     });
   };
 
+  const handleView = (recipeId) => {
+    onClose();
+    onViewRecipe(recipeId);
+  };
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
@@ -30,51 +32,34 @@ const VersionHistoryModal = ({
           <h2>Version History</h2>
           <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
-        
         <div className={styles.modalContent}>
-          <div className={styles.versionList}>
-            {versions.map((version) => (
-              <div 
-                key={version.id} 
-                className={`${styles.versionItem} ${currentVersion?.id === version.id ? styles.active : ''}`}
-              >
-                <div className={styles.versionInfo}>
-                  <span className={styles.versionDate}>{formatDate(version.createdAt)}</span>
-                  <div className={styles.badges}>
-                    {version.revertedFrom && (
-                      <span className={styles.revertedBadge}>Reverted</span>
-                    )}
-                    {version.isFork && (
-                      <span className={styles.forkBadge}>Forked</span>
-                    )}
-                  </div>
-                </div>
-                <div className={styles.versionActions}>
-                  <button 
-                    onClick={() => onVersionSelect(version)}
-                    className={styles.viewButton}
-                  >
-                    View
-                  </button>
-                  <button 
-                    onClick={() => onFork(version)}
-                    className={styles.forkButton}
-                  >
-                    Fork
-                  </button>
-                  {isAuthor && (
-                    <button 
-                      onClick={() => onRevert(version)}
-                      className={styles.revertButton}
-                      disabled={currentVersion?.id === version.id}
-                    >
-                      Revert
-                    </button>
-                  )}
-                </div>
+          {ancestry.map((recipe) => (
+            <div 
+              key={recipe._id} 
+              className={`${styles.versionItem} ${currentRecipeId === recipe._id ? styles.active : ''}`}
+            >
+              <div className={styles.versionHeader}>
+                <span className={styles.versionNumber}>{recipe.name}</span>
+                <span className={styles.versionDate}>{formatDate(recipe.createdAt)}</span>
               </div>
-            ))}
-          </div>
+              <div className={styles.versionActions}>
+                <button 
+                  onClick={() => handleView(recipe._id)}
+                  className={styles.viewButton}
+                >
+                  View
+                </button>
+              </div>
+              <div className={styles.authorInfo}>
+                <img 
+                  src={recipe.author.profilePicture || '/default-avatar.png'} 
+                  alt={recipe.author.name}
+                  className={styles.authorAvatar}
+                />
+                <span className={styles.authorName}>{recipe.author.name}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
