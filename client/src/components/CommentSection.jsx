@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './CommentSection.module.css';
+import LikeButton from './LikeButton';
 
 const LOCAL_COMMENTS_KEY = 'dev_comments';
 
@@ -83,56 +84,24 @@ export default function CommentSection({ recipeId }) {
     }
   };
 
-  const handleLike = async (commentId) => {
-    if (isDevMode) {
-      // Handle likes in dev mode
-      const storedComments = localStorage.getItem(LOCAL_COMMENTS_KEY);
-      const allComments = storedComments ? JSON.parse(storedComments) : {};
-      const recipeComments = allComments[recipeId] || [];
-      
-      const updatedComments = recipeComments.map(comment => {
-        if (comment.id === commentId) {
-          const hasLiked = comment.likes.includes(user.id);
-          return {
-            ...comment,
-            likes: hasLiked 
-              ? comment.likes.filter(id => id !== user.id)
-              : [...comment.likes, user.id],
-            likeCount: hasLiked ? comment.likeCount - 1 : comment.likeCount + 1
-          };
+  const handleLikeToggle = async (commentId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/comments/${commentId}/like`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        return comment;
       });
-      
-      allComments[recipeId] = updatedComments;
-      localStorage.setItem(LOCAL_COMMENTS_KEY, JSON.stringify(allComments));
-      setComments(updatedComments);
-    } else {
-      try {
-        const response = await fetch(`http://localhost:3000/api/comments/${commentId}/like`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (!response.ok) throw new Error('Failed to toggle like');
-        const updatedComment = await response.json();
-        setComments(prev => 
-          prev.map(comment => 
-            comment._id === commentId ? updatedComment : comment
-          )
-        );
-      } catch (err) {
-        setError('Failed to update like');
-      }
+      if (!response.ok) throw new Error('Failed to toggle like');
+      const updatedComment = await response.json();
+      setComments(prev => 
+        prev.map(comment => 
+          comment._id === commentId ? updatedComment : comment
+        )
+      );
+    } catch (err) {
+      setError('Failed to update like');
     }
-  };
-
-  const isLiked = (comment) => {
-    if (isDevMode) {
-      return comment.likes?.includes(user.id);
-    }
-    return comment.likes?.includes(user._id);
   };
 
   const handleAuthorClick = (authorName) => {
@@ -163,7 +132,7 @@ export default function CommentSection({ recipeId }) {
           <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
         ) : (
           comments.map(comment => (
-            <div key={comment._id || comment.id} className={styles.comment}>
+            <div key={comment._id} className={styles.comment}>
               <div className={styles.commentHeader}>
                 <img
                   src={comment.author.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
@@ -184,14 +153,16 @@ export default function CommentSection({ recipeId }) {
                 </div>
               </div>
               <p className={styles.commentText}>{comment.content}</p>
+              {console.log(comment.likes)}
+              {console.log(user.id)}
               <div className={styles.commentActions}>
-                <button 
-                  onClick={() => handleLike(comment._id || comment.id)}
-                  className={`${styles.likeButton} ${isLiked(comment) ? styles.liked : ''}`}
-                >
-                  <span className={styles.likeIcon}>❤️</span>
-                  <span className={styles.likeCount}>{comment.likeCount || 0}</span>
-                </button>
+                {user && (
+                  <LikeButton
+                    isLiked={comment.likes.includes(user.id)}
+                    likeCount={comment.likes.length}
+                    onLikeToggle={() => handleLikeToggle(comment._id)}
+                  />
+                )}
               </div>
             </div>
           ))
