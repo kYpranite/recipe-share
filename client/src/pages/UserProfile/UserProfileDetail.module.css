@@ -240,6 +240,7 @@
   font-family: 'Roboto Mono', monospace;
   margin: 3rem 0;
   background: none;
+  white-space: nowrap;
 }
 
 .userGrid {
