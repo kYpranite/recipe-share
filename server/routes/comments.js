@@ -28,7 +28,7 @@ router.post("/:recipeId", auth, async (req, res) => {
     // Add comment to recipe's comments array
     await recipe.addComment(comment._id);
     
-    await comment.populate("author", "name profilePicture");
+    await comment.populate("author", "name profilePicture _id");
     
     res.status(201).json(comment);
   } catch (error) {
@@ -43,7 +43,7 @@ router.post("/:recipeId", auth, async (req, res) => {
 router.get("/recipe/:recipeId", auth, async (req, res) => {
   try {
     const comments = await Comment.find({ recipe: req.params.recipeId })
-      .populate("author", "name profilePicture")
+      .populate("author", "name profilePicture _id")
       .sort({ createdAt: -1 });
 
     res.json(comments);
@@ -97,7 +97,7 @@ router.post("/:commentId/like", auth, async (req, res) => {
 
     await comment.toggleLike(req.user.id);
 
-    await comment.populate("author", "name profilePicture");
+    await comment.populate("author", "name profilePicture _id");
 
     res.json(comment);
   } catch (error) {
