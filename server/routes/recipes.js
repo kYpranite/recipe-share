@@ -223,6 +223,57 @@ router.post('/:id/unlike', auth, async (req, res) => {
   }
 });
 
+// Fork recipe
+router.post('/:id/fork', auth, async (req, res) => {
+  console.log('POST /api/recipes/:id/fork - Forking recipe');
+  try {
+    const originalRecipe = await Recipe.findById(req.params.id)
+      .populate('currentVersion');
+    
+    if (!originalRecipe) {
+      console.log('Original recipe not found');
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    if (originalRecipe.isPrivate && originalRecipe.originalAuthor.toString() !== req.user.id) {
+      console.log('Unauthorized access to private recipe');
+      return res.status(403).json({ message: 'Cannot fork a private recipe' });
+    }
+
+    const forkedRecipe = new Recipe({
+      name: `${originalRecipe.name} (Forked)`,
+      description: originalRecipe.description,
+      originalAuthor: req.user.id,
+      currentVersion: originalRecipe.currentVersion._id,
+      versionHistory: [originalRecipe.currentVersion._id],
+      forkedFrom: originalRecipe._id,
+      isPrivate: false,
+      tags: originalRecipe.tags,
+      cuisine: originalRecipe.cuisine,
+      comments: []
+    });
+
+    await forkedRecipe.save();
+
+    originalRecipe.forks.push(forkedRecipe._id);
+    await originalRecipe.save();
+
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { $push: { recipes: forkedRecipe._id } }
+    );
+
+    console.log('Recipe forked successfully');
+    res.status(201).json({
+      message: 'Recipe forked successfully',
+      recipe: forkedRecipe
+    });
+  } catch (error) {
+    console.error('Error forking recipe:', error);
+    res.status(500).json({ message: 'Error forking recipe', error: error.message });
+  }
+});
+
 // Update recipe
 router.put('/:id', auth, async (req, res) => {
   console.log('PUT /api/recipes/:id - Updating recipe');
