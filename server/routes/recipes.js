@@ -223,6 +223,57 @@ router.post('/:id/unlike', auth, async (req, res) => {
   }
 });
 
+// Fork recipe
+router.post('/:id/fork', auth, async (req, res) => {
+  console.log('POST /api/recipes/:id/fork - Forking recipe');
+  try {
+    const originalRecipe = await Recipe.findById(req.params.id)
+      .populate('currentVersion');
+    
+    if (!originalRecipe) {
+      console.log('Original recipe not found');
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    if (originalRecipe.isPrivate && originalRecipe.originalAuthor.toString() !== req.user.id) {
+      console.log('Unauthorized access to private recipe');
+      return res.status(403).json({ message: 'Cannot fork a private recipe' });
+    }
+
+    const forkedRecipe = new Recipe({
+      name: `${originalRecipe.name} (Forked)`,
+      description: originalRecipe.description,
+      originalAuthor: req.user.id,
+      currentVersion: originalRecipe.currentVersion._id,
+      versionHistory: [originalRecipe.currentVersion._id],
+      forkedFrom: originalRecipe._id,
+      isPrivate: false,
+      tags: originalRecipe.tags,
+      cuisine: originalRecipe.cuisine,
+      comments: []
+    });
+
+    await forkedRecipe.save();
+
+    originalRecipe.forks.push(forkedRecipe._id);
+    await originalRecipe.save();
+
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { $push: { recipes: forkedRecipe._id } }
+    );
+
+    console.log('Recipe forked successfully');
+    res.status(201).json({
+      message: 'Recipe forked successfully',
+      recipe: forkedRecipe
+    });
+  } catch (error) {
+    console.error('Error forking recipe:', error);
+    res.status(500).json({ message: 'Error forking recipe', error: error.message });
+  }
+});
+
 // Update recipe
 router.put('/:id', auth, async (req, res) => {
   console.log('PUT /api/recipes/:id - Updating recipe');
@@ -280,6 +331,48 @@ router.put('/:id', auth, async (req, res) => {
       error: error.message,
       details: error.errors ? Object.values(error.errors).map(err => err.message) : undefined
     });
+  }
+});
+
+// Delete recipe
+router.delete('/:id', auth, async (req, res) => {
+  console.log('DELETE /api/recipes/:id - Deleting recipe');
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    
+    if (!recipe) {
+      console.log('Recipe not found');
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    if (recipe.originalAuthor.toString() !== req.user.id) {
+      console.log('Unauthorized to delete recipe');
+      return res.status(403).json({ message: 'Not authorized to delete this recipe' });
+    }
+
+    // Remove recipe from user's recipes array
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { $pull: { recipes: recipe._id } }
+    );
+
+    // Remove recipe from any forks' forkedFrom references
+    await Recipe.updateMany(
+      { forkedFrom: recipe._id },
+      { $set: { forkedFrom: null } }
+    );
+
+    // Delete all versions associated with the recipe
+    await Version.deleteMany({ recipe: recipe._id });
+
+    // Delete the recipe
+    await recipe.deleteOne();
+
+    console.log('Recipe deleted successfully');
+    res.json({ message: 'Recipe deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    res.status(500).json({ message: 'Error deleting recipe', error: error.message });
   }
 });
 

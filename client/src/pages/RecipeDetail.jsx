@@ -97,7 +97,8 @@ export default function RecipeDetail() {
       }
 
       const data = await response.json();
-      navigate(`/recipe/${data.recipe._id}`);
+      window.scrollTo(0, 0);
+      navigate(`/edit-recipe/${data.recipe._id}`);
     } catch (err) {
       console.error('Error forking recipe:', err);
       setError(err.message);
@@ -158,6 +159,30 @@ export default function RecipeDetail() {
       setSelectedVersion(null);
     } catch (err) {
       console.error('Error reverting recipe:', err);
+      setError(err.message);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/recipes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete recipe');
+      }
+
+      navigate('/home');
+    } catch (err) {
+      console.error('Error deleting recipe:', err);
       setError(err.message);
     }
   };
@@ -254,12 +279,20 @@ export default function RecipeDetail() {
           <span>Fork Recipe</span>
         </button>
         {user && user.id === recipe.originalAuthor && (
-          <button 
-            className={styles.editButton} 
-            onClick={() => navigate(`/edit-recipe/${id}`)}
-          >
-            <span>Edit Recipe</span>
-          </button>
+          <>
+            <button 
+              className={styles.editButton} 
+              onClick={() => navigate(`/edit-recipe/${id}`)}
+            >
+              <span>Edit Recipe</span>
+            </button>
+            <button 
+              className={styles.deleteButton} 
+              onClick={handleDelete}
+            >
+              <span>Delete Recipe</span>
+            </button>
+          </>
         )}
         <button 
           className={styles.versionButton} 
