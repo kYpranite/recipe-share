@@ -115,11 +115,16 @@ export default function RecipeCard({ id, title, cuisine, author, authorId, avata
         </div>
       </div>
 
-      {image && (
-        <div className={styles.recipeImage}>
-          <img src={image} alt={title} />
-        </div>
-      )}
+      <div className={styles.recipeImage}>
+        {image ? (
+          <img 
+            src={image} 
+            alt={title} 
+          />
+        ) : (
+          <div className={styles.placeholderImage}>No Image Provided</div>
+        )}
+      </div>
 
       <div className={styles.recipeContent}>
         <h3 className={styles.recipeTitle}>
