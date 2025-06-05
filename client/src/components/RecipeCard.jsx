@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LikeButton from './LikeButton';
@@ -8,8 +9,61 @@ const LOCAL_RATINGS_KEY = 'dev_ratings';
 //displays a single recipe in the feed
 export default function RecipeCard({ id, title, cuisine, author, authorId, avatar, about, image, onView }) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/recipes/${id}/likes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch like status');
+        }
+        
+        const data = await response.json();
+        setIsLiked(data.isLiked);
+        setLikeCount(data.likeCount);
+      } catch (error) {
+        console.error('Error checking like status:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkLikeStatus();
+  }, [id, user, token]);
+
+  const handleLikeToggle = async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/recipes/${id}/${isLiked ? 'unlike' : 'like'}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to ${isLiked ? 'unlike' : 'like'} recipe`);
+      }
+      
+      const data = await response.json();
+      setIsLiked(!isLiked);
+      setLikeCount(data.likeCount);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
   const handleAuthorClick = (e) => {
     e.stopPropagation();
     if (authorId) {
@@ -92,7 +146,14 @@ export default function RecipeCard({ id, title, cuisine, author, authorId, avata
               </span>
             </div>
           )}
-          {user && <LikeButton recipeId={id} />}
+          {user && (
+            <LikeButton
+              isLiked={isLiked}
+              likeCount={likeCount}
+              onLikeToggle={handleLikeToggle}
+              disabled={loading}
+            />
+          )}
         </div>
         
         <button className={styles.viewButton} onClick={handleViewClick}>
