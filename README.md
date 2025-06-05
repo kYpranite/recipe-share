@@ -1,25 +1,151 @@
 # RecipeShare
 
-A community-driven recipe platform where users can create, edit, browse, and collaboratively refine cooking recipes. Built as part of UCLA's CS35L course.
+A community-driven recipe platform where users can create, edit, browse, and share cooking recipes. Built for UCLA's CS35L course.
 
-## Recent UI/UX & Feature Improvements
+## Quick Start Guide
 
-- **Dynamic Recipe Feed:**
-  - Home page displays recipes created by users (stored in localStorage in dev mode)
-  - New recipes appear instantly in the feed
-- **Profile Editing:**
-  - Edit Profile page (`/edit-profile`) lets users set their name, bio, and avatar (with live preview)
-  - Profile info is saved in localStorage (dev mode)
-- **Navigation Improvements:**
-  - NavBar includes links to Home, Create Recipe, My Profile, Edit Profile, and Logout
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB (local installation or MongoDB Atlas account)
+- npm or yarn
+
+### Step 1: Clone and Setup
+```bash
+# Clone the repository
+git clone https://github.com/your-username/recipe-share.git
+cd recipe-share
+
+# Install frontend dependencies
+cd client
+npm install
+
+# Install backend dependencies
+cd ../server
+npm install
+```
+
+### Step 2: Environment Setup
+
+1. Create a `.env` file in the server directory:
+```bash
+cd server
+touch .env
+```
+
+2. Add the following to your `.env` file:
+```
+MONGODB_URI=mongodb://localhost:27017/recipe-share
+JWT_SECRET=your_secret_key_here
+PORT=3000
+```
+
+Note: Replace `mongodb://localhost:27017/recipe-share` with your MongoDB connection string if using MongoDB Atlas.
+
+### Step 3: Start the Application
+
+1. Start the backend server:
+```bash
+cd server
+npm run dev
+```
+
+2. In a new terminal, start the frontend:
+```bash
+cd client
+npm run dev
+```
+
+3. Access the application:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
+
+## Development Mode
+
+For easier testing and development, you can enable development mode:
+
+1. Open `client/src/context/AuthContext.jsx`
+2. Set `const DEV_MODE = true;`
+3. Refresh your browser
+
+In development mode:
+- No login required
+- Data is stored in localStorage
+- All features are accessible
+
+## Available Scripts
+
+### Backend (server directory)
+```bash
+npm run dev     # Start development server
+npm start       # Start production server
+npm test        # Run tests
+```
+
+### Frontend (client directory)
+```bash
+npm run dev     # Start development server
+npm build       # Build for production
+npm preview     # Preview production build
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **MongoDB Connection Error**
+   - Ensure MongoDB is running locally
+   - Check your MongoDB connection string in `.env`
+   - Verify network connectivity if using MongoDB Atlas
+
+2. **Port Already in Use**
+   - Change the PORT in `.env` if 3000 is occupied
+   - Kill the process using the port: `kill $(lsof -t -i:3000)`
+
+3. **Module Not Found Errors**
+   - Delete `node_modules` and `package-lock.json`
+   - Run `npm install` again
+
+4. **CORS Errors**
+   - Ensure backend is running on port 3000
+   - Check that frontend is making requests to correct URL
+
+## Project Structure
+
+```
+recipe-share/
+├── client/                 # Frontend React application
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── context/        # React context providers
+│   │   ├── pages/          # Page components
+│   │   └── assets/         # Static assets
+│   └── public/             # Public static files
+└── server/                 # Backend Express application
+    ├── models/             # Database models
+    ├── routes/             # API routes
+    ├── middleware/         # Custom middleware
+    └── utils/              # Utility functions
+```
+
+## API Documentation
+
+The API documentation is available at http://localhost:3000/api-docs when running the server.
+
+## Support
+
+For issues and questions:
+1. Check the troubleshooting section above
+2. Review the API documentation
+3. Check the commit history for recent changes
+4. Contact the development team
 
 
 ## Features
 
 - User authentication (signup/login)
-- **Modern UI and navigation**
-- **Dynamic recipe feed (see your own recipes instantly)**
-- **Profile editing with avatar and bio**
+- Modern UI and navigation
+- Dynamic recipe feed (see your own recipes instantly)
+- Profile editing with avatar and bio
 - Create and share recipes with detailed instructions
 - Browse recipes in a personalized feed
 - Search recipes by name, cuisine, or ingredients
@@ -40,72 +166,6 @@ A community-driven recipe platform where users can create, edit, browse, and col
 - Node.js/Express
 - MongoDB
 - JWT for authentication
-
-## Project Structure
-
-```
-recipe-share/
-├── client/                 # Frontend React application
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── context/        # React context providers
-│   │   ├── pages/          # Page components
-│   │   └── assets/         # Static assets
-│   └── public/             # Public static files
-└── server/                 # Backend Express application
-```
-
-## Getting Started
-
-### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/recipe-share.git
-cd recipe-share
-```
-
-2. Install frontend dependencies:
-```bash
-cd client
-npm install
-```
-
-3. Install backend dependencies:
-```bash
-cd ../server
-npm install
-```
-
-4. Create a `.env` file in the server directory with the following variables:
-```
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-PORT=3000
-```
-
-### Running the Application
-
-1. Start the backend server:
-```bash
-cd server
-npm run dev
-```
-
-2. In a new terminal, start the frontend development server:
-```bash
-cd client
-npm run dev
-```
-
-The application will be available at:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3000
 
 ## Frontend Routes
 
