@@ -97,7 +97,8 @@ export default function RecipeDetail() {
       }
 
       const data = await response.json();
-      navigate(`/recipe/${data.recipe._id}`);
+      window.scrollTo(0, 0);
+      navigate(`/edit-recipe/${data.recipe._id}`);
     } catch (err) {
       console.error('Error forking recipe:', err);
       setError(err.message);
