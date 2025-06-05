@@ -104,8 +104,8 @@ export default function CommentSection({ recipeId }) {
     }
   };
 
-  const handleAuthorClick = (authorName) => {
-    navigate(`/profile/${authorName}`);
+  const handleAuthorClick = (authorId) => {
+    navigate(`/profile/${authorId}`);
   };
 
   return (
@@ -142,7 +142,7 @@ export default function CommentSection({ recipeId }) {
                 <div className={styles.commentInfo}>
                   <span 
                     className={styles.authorName}
-                    onClick={() => handleAuthorClick(comment.author.name)}
+                    onClick={() => handleAuthorClick(comment.author._id)}
                     style={{ cursor: 'pointer' }}
                   >
                     {comment.author.name}
