@@ -1,14 +1,14 @@
 # RecipeShare
 
-A full-stack web application for sharing and discovering recipes
+A full-stack web application for sharing and discovering recipes, built with React and Node.js.
+
 ## Project Requirements
 
-## Running the Application Locally
-
-### Prerequisites
 - Node.js (v14 or higher)
 - MongoDB Atlas account
 - npm or yarn
+
+## Running the Application Locally
 
 ### Step 1: Clone and Setup
 ```bash
@@ -47,7 +47,7 @@ MONGO_DATABASE=recipe_share
 JWT_SECRET=your_secure_jwt_secret
 
 # Environment
-NODE_ENV=production
+NODE_ENV=development
 ```
 
 ### Step 3: Start the Application
@@ -72,80 +72,43 @@ npm run dev
 
 ### Core Features
 - User authentication (signup/login)
-- Dynamic recipe feed
-- Recipe creation and editing
-- Search functionality (by name, cuisine, ingredients)
-- User profiles and following system
+- User profiles with customizable information
+- Recipe creation and management
+- Search functionality for users and recipes
+- Social features (following, likes, comments)
+- Responsive design for all devices
 
-### Additional Features
-- Recipe forking and version history
-- Rating and commenting system
-- Recipe likes and trending section
-- User search functionality
+### User Features
+- Profile customization
+- Follow/unfollow other users
+- View user profiles
+- Search for other users
+- View user activity and recipes
 
-## Project Structure
-```
-recipe-share/
-├── client/                 # Frontend React application
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── context/        # React context providers
-│   │   ├── pages/          # Page components
-│   │   └── assets/         # Static assets
-│   └── public/             # Public static files
-└── server/                 # Backend Express application
-    ├── models/             # Database models
-    ├── routes/             # API routes
-    ├── middleware/         # Custom middleware
-    └── utils/              # Utility functions
-```
-
-
-## Project Structure
-```
-recipe-share/
-├── client/                 # Frontend React application
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── context/        # React context providers
-│   │   ├── pages/          # Page components
-│   │   └── assets/         # Static assets
-│   └── public/             # Public static files
-└── server/                 # Backend Express application
-    ├── models/             # Database models
-    ├── routes/             # API routes
-    ├── middleware/         # Custom middleware
-    └── utils/              # Utility functions
-```
-
-## Key Features
-
-### Authentication & Security
-- JWT-based authentication
-- Protected routes
-- User authorization
-- Secure password handling
-
-### Recipe Management
+### Recipe Features
 - Create and edit recipes
 - Upload recipe images
-- Version control for recipes
-- Fork existing recipes
-- Private/public recipe settings
-
-### Social Features
-- User profiles
-- Follow other users
+- Search and discover recipes
 - Like and comment on recipes
-- Rate recipes
-- View trending recipes
+- View recipe details and instructions
 
-### Search Functionality
-- Search by recipe name
-- Search by cuisine type
-- Search by ingredients
-- User search
-- Real-time search results
+## Project Structure
+```
+recipe-share/
+├── client/                 # Frontend React application
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── context/        # React context providers
+│   │   ├── pages/         # Page components
+│   │   ├── assets/        # Static assets
+│   │   └── styles/        # CSS modules
+│   └── public/            # Public static files
+└── server/                # Backend Express application
+    ├── models/            # Database models
+    ├── routes/            # API routes
+    ├── middleware/        # Custom middleware
+    └── utils/             # Utility functions
+```
 
 ## API Endpoints
 
@@ -154,32 +117,20 @@ recipe-share/
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/me` - Get current user info
 
+### Users
+- `GET /api/users/search` - Search users
+- `GET /api/users/initial` - Get initial user list
+- `POST /api/users/:id/follow` - Follow user
+- `POST /api/users/:id/unfollow` - Unfollow user
+- `GET /api/users/:id/is-following` - Check follow status
+
 ### Recipes
 - `POST /api/recipes` - Create new recipe
 - `GET /api/recipes/:id` - Get single recipe
 - `GET /api/recipes/recent` - Get recent recipes
 - `GET /api/recipes/trending` - Get trending recipes
-- `POST /api/recipes/:id/fork` - Fork recipe
-- `GET /api/recipes/:id/versions` - Get version history
 
-### User Interactions
-- `POST /api/recipes/:id/comment` - Add comment
-- `POST /api/recipes/:id/rate` - Rate recipe
-- `POST /api/recipes/:id/like` - Like recipe
-- `POST /api/users/:id/follow` - Follow user
-
-## Development & Testing
-
-### Development Mode
-For easier testing and development:
-1. Open `client/src/context/AuthContext.jsx`
-2. Set `const DEV_MODE = true;`
-3. Refresh your browser
-
-In development mode:
-- No login required
-- Data is stored in localStorage
-- All features are accessible
+## Development
 
 ### Available Scripts
 
@@ -187,7 +138,6 @@ In development mode:
 ```bash
 npm run dev     # Start development server
 npm start       # Start production server
-npm test        # Run tests
 ```
 
 #### Frontend (client directory)
@@ -199,27 +149,21 @@ npm preview     # Preview production build
 
 ## Troubleshooting
 
-### Common Issues
+If you encounter any issues:
 
-1. **MongoDB Connection Error**
-   - Verify MongoDB Atlas credentials
-   - Check network connectivity
-   - Ensure IP whitelist is configured
-
-2. **Port Already in Use**
-   - Change the PORT in `.env`
-   - Kill the process: `kill $(lsof -t -i:3000)`
-
-3. **Module Not Found Errors**
-   - Delete `node_modules` and `package-lock.json`
-   - Run `npm install` again
-
-4. **CORS Errors**
-   - Ensure backend is running on port 3000
-   - Check frontend API requests
+1. Ensure all environment variables are properly set
+2. Check that MongoDB is running and accessible
+3. Verify that both frontend and backend servers are running
+4. Check the console for any error messages
+5. Ensure all dependencies are installed correctly
 
 ## Contributing
-This project was created for UCLA's CS35L course. For more information about contributing or using this code, please contact the development team.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
