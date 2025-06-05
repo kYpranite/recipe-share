@@ -96,7 +96,6 @@ recipeSchema.methods.addVersion = async function(versionData) {
   return newVersion;
 };
 
-// Method to add a comment to the recipe
 recipeSchema.methods.addComment = async function(commentId) {
   this.comments.push(commentId);
   return await this.save();

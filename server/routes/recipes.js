@@ -7,9 +7,8 @@ import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Create recipe
+// Create a new recipe
 router.post('/', auth, async (req, res) => {
-  console.log('POST /api/recipes - Creating new recipe');
   try {
     const {
       name,
@@ -20,6 +19,7 @@ router.post('/', auth, async (req, res) => {
       versionData
     } = req.body;
 
+    // Create new recipe instance
     const recipe = new Recipe({
       name,
       description,
@@ -27,21 +27,21 @@ router.post('/', auth, async (req, res) => {
       isPrivate: isPrivate || false,
       tags: tags || [],
       cuisine,
-      comments: [] // Initialize empty comments array
+      comments: []
     });
 
-    // Create initial version
+    // Create initial version and link it to the recipe
     const initialVersion = await recipe.addVersion({
       ...versionData,
       author: req.user.id
     });
 
+    // Add recipe to user's recipe list
     await User.findByIdAndUpdate(
       req.user.id,
       { $push: { recipes: recipe._id } }
     );
 
-    console.log('Recipe created successfully:', recipe);
     res.status(201).json({
       message: 'Recipe created successfully',
       recipe: {
@@ -50,7 +50,6 @@ router.post('/', auth, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error creating recipe:', error);
     res.status(500).json({ 
       message: 'Error creating recipe', 
       error: error.message,
@@ -61,7 +60,6 @@ router.post('/', auth, async (req, res) => {
 
 // Get recent recipes
 router.get('/recent', auth, async (req, res) => {
-  console.log('GET /api/recipes/recent - Fetching recent recipes');
   try {
     const recipes = await Recipe.find({ isPrivate: false })
       .populate('currentVersion')
@@ -75,17 +73,14 @@ router.get('/recent', auth, async (req, res) => {
       })
       .sort({ updatedAt: -1 });
 
-    console.log(`Found ${recipes.length} recipes`);
     res.json(recipes);
   } catch (error) {
-    console.error('Error fetching recipes:', error);
     res.status(500).json({ message: 'Error fetching recipes', error: error.message });
   }
 });
 
 // Get trending recipes (most liked in past 3 days)
 router.get('/trending', auth, async (req, res) => {
-  console.log('GET /api/recipes/trending - Fetching trending recipes');
   try {
     const threeDaysAgo = new Date();
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
@@ -106,19 +101,14 @@ router.get('/trending', auth, async (req, res) => {
       .sort({ likeCount: -1 })
       .limit(3);
 
-    console.log(`Found ${recipes.length} trending recipes`);
     res.json(recipes);
   } catch (error) {
-    console.error('Error fetching trending recipes:', error);
     res.status(500).json({ message: 'Error fetching trending recipes', error: error.message });
   }
 });
 
-// Get single recipe
+// Get a single recipe by ID
 router.get('/:id', auth, async (req, res) => {
-  console.log('GET /api/recipes/:id - Fetching recipe');
-  console.log('Recipe ID:', req.params.id);
-  
   try {
     const recipe = await Recipe.findById(req.params.id)
       .populate('currentVersion')
@@ -132,26 +122,22 @@ router.get('/:id', auth, async (req, res) => {
       });
 
     if (!recipe) {
-      console.log('Recipe not found');
       return res.status(404).json({ message: 'Recipe not found' });
     }
 
+    // Check if recipe is private and user is not the author
     if (recipe.isPrivate && recipe.originalAuthor._id.toString() !== req.user.id) {
-      console.log('Unauthorized access to private recipe');
       return res.status(403).json({ message: 'This recipe is private' });
     }
 
-    console.log('Recipe found:', recipe);
     res.json(recipe);
   } catch (error) {
-    console.error('Error fetching recipe:', error);
     res.status(500).json({ message: 'Error fetching recipe', error: error.message });
   }
 });
 
 // Get recipe likes
 router.get('/:id/likes', auth, async (req, res) => {
-  console.log('GET /api/recipes/:id/likes - Fetching recipe likes');
   try {
     const recipe = await Recipe.findById(req.params.id);
     if (!recipe) {
@@ -164,14 +150,12 @@ router.get('/:id/likes', auth, async (req, res) => {
       isLiked
     });
   } catch (error) {
-    console.error('Error fetching recipe likes:', error);
     res.status(500).json({ message: 'Error fetching recipe likes', error: error.message });
   }
 });
 
 // Like recipe
 router.post('/:id/like', auth, async (req, res) => {
-  console.log('POST /api/recipes/:id/like - Liking recipe');
   try {
     const recipe = await Recipe.findById(req.params.id);
     if (!recipe) {
@@ -191,14 +175,12 @@ router.post('/:id/like', auth, async (req, res) => {
       likeCount: recipe.likeCount
     });
   } catch (error) {
-    console.error('Error liking recipe:', error);
     res.status(500).json({ message: 'Error liking recipe', error: error.message });
   }
 });
 
 // Unlike recipe
 router.post('/:id/unlike', auth, async (req, res) => {
-  console.log('POST /api/recipes/:id/unlike - Unliking recipe');
   try {
     const recipe = await Recipe.findById(req.params.id);
     if (!recipe) {
@@ -218,25 +200,21 @@ router.post('/:id/unlike', auth, async (req, res) => {
       likeCount: recipe.likeCount
     });
   } catch (error) {
-    console.error('Error unliking recipe:', error);
     res.status(500).json({ message: 'Error unliking recipe', error: error.message });
   }
 });
 
 // Fork recipe
 router.post('/:id/fork', auth, async (req, res) => {
-  console.log('POST /api/recipes/:id/fork - Forking recipe');
   try {
     const originalRecipe = await Recipe.findById(req.params.id)
       .populate('currentVersion');
     
     if (!originalRecipe) {
-      console.log('Original recipe not found');
-      return res.status(404).json({ message: 'Recipe not found' });
+      return res.status(404).json({ message: 'Original recipe not found' });
     }
 
     if (originalRecipe.isPrivate && originalRecipe.originalAuthor.toString() !== req.user.id) {
-      console.log('Unauthorized access to private recipe');
       return res.status(403).json({ message: 'Cannot fork a private recipe' });
     }
 
@@ -263,32 +241,25 @@ router.post('/:id/fork', auth, async (req, res) => {
       { $push: { recipes: forkedRecipe._id } }
     );
 
-    console.log('Recipe forked successfully');
     res.status(201).json({
       message: 'Recipe forked successfully',
       recipe: forkedRecipe
     });
   } catch (error) {
-    console.error('Error forking recipe:', error);
     res.status(500).json({ message: 'Error forking recipe', error: error.message });
   }
 });
 
 // Update recipe
 router.put('/:id', auth, async (req, res) => {
-  console.log('PUT /api/recipes/:id - Updating recipe');
-  console.log('Recipe ID:', req.params.id);
-  
   try {
     const recipe = await Recipe.findById(req.params.id);
     
     if (!recipe) {
-      console.log('Recipe not found');
       return res.status(404).json({ message: 'Recipe not found' });
     }
 
     if (recipe.originalAuthor.toString() !== req.user.id) {
-      console.log('Unauthorized to update recipe');
       return res.status(403).json({ message: 'Not authorized to update this recipe' });
     }
 
@@ -316,7 +287,6 @@ router.put('/:id', auth, async (req, res) => {
 
     await recipe.save();
 
-    console.log('Recipe updated successfully:', recipe);
     res.json({
       message: 'Recipe updated successfully',
       recipe: {
@@ -325,7 +295,6 @@ router.put('/:id', auth, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error updating recipe:', error);
     res.status(500).json({ 
       message: 'Error updating recipe', 
       error: error.message,
@@ -336,17 +305,14 @@ router.put('/:id', auth, async (req, res) => {
 
 // Delete recipe
 router.delete('/:id', auth, async (req, res) => {
-  console.log('DELETE /api/recipes/:id - Deleting recipe');
   try {
     const recipe = await Recipe.findById(req.params.id);
     
     if (!recipe) {
-      console.log('Recipe not found');
       return res.status(404).json({ message: 'Recipe not found' });
     }
 
     if (recipe.originalAuthor.toString() !== req.user.id) {
-      console.log('Unauthorized to delete recipe');
       return res.status(403).json({ message: 'Not authorized to delete this recipe' });
     }
 
@@ -368,17 +334,14 @@ router.delete('/:id', auth, async (req, res) => {
     // Delete the recipe
     await recipe.deleteOne();
 
-    console.log('Recipe deleted successfully');
     res.json({ message: 'Recipe deleted successfully' });
   } catch (error) {
-    console.error('Error deleting recipe:', error);
     res.status(500).json({ message: 'Error deleting recipe', error: error.message });
   }
 });
 
 // Get version history including forks and ancestry chain
 router.get('/:id/versions', auth, async (req, res) => {
-  console.log('GET /api/recipes/:id/versions - Fetching version history');
   try {
     const recipe = await Recipe.findById(req.params.id)
       .populate({
@@ -398,14 +361,12 @@ router.get('/:id/versions', auth, async (req, res) => {
 
     res.json({ versions });
   } catch (error) {
-    console.error('Error fetching version history:', error);
     res.status(500).json({ message: 'Error fetching version history', error: error.message });
   }
 });
 
 // Get specific version of a recipe
 router.get('/:recipeId/versions/:versionId', auth, async (req, res) => {
-  console.log('GET /api/recipes/:recipeId/versions/:versionId - Fetching specific version');
   try {
     const recipe = await Recipe.findById(req.params.recipeId);
     if (!recipe) {
@@ -432,7 +393,6 @@ router.get('/:recipeId/versions/:versionId', auth, async (req, res) => {
       recipeTags: recipe.tags
     });
   } catch (error) {
-    console.error('Error fetching version:', error);
     res.status(500).json({ message: 'Error fetching version', error: error.message });
   }
 });

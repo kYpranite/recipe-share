@@ -13,18 +13,18 @@ export default function CommentSection({ recipeId }) {
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState('');
 
-  // Load comments from localStorage in dev mode
+  // Load comments from localStorage in dev mode or fetch from API
   React.useEffect(() => {
     if (isDevMode) {
       const storedComments = localStorage.getItem(LOCAL_COMMENTS_KEY);
       const allComments = storedComments ? JSON.parse(storedComments) : {};
       setComments(allComments[recipeId] || []);
     } else {
-      // In production, fetch comments from API
       fetchComments();
     }
   }, [recipeId, isDevMode]);
 
+  // Fetch comments from the API
   const fetchComments = async () => {
     try {
       const response = await fetch(`http://localhost:3000/api/comments/recipe/${recipeId}`, {
@@ -40,17 +40,18 @@ export default function CommentSection({ recipeId }) {
     }
   };
 
+  // Handle new comment submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
     try {
       if (isDevMode) {
-        console.log("HERE");
-        // Save to localStorage in dev mode
+        // Store comment in localStorage for development
         const storedComments = localStorage.getItem(LOCAL_COMMENTS_KEY);
         const allComments = storedComments ? JSON.parse(storedComments) : {};
         const recipeComments = allComments[recipeId] || [];
+        
         const comment = {
           id: Date.now().toString(),
           content: newComment,
@@ -62,10 +63,12 @@ export default function CommentSection({ recipeId }) {
           likes: [],
           likeCount: 0
         };
+        
         allComments[recipeId] = [...recipeComments, comment];
         localStorage.setItem(LOCAL_COMMENTS_KEY, JSON.stringify(allComments));
         setComments(allComments[recipeId]);
       } else {
+        // Post comment to API in production
         const response = await fetch(`http://localhost:3000/api/comments/${recipeId}`, {
           method: 'POST',
           headers: {
@@ -84,6 +87,7 @@ export default function CommentSection({ recipeId }) {
     }
   };
 
+  // Handle like/unlike on comments
   const handleLikeToggle = async (commentId) => {
     try {
       const response = await fetch(`http://localhost:3000/api/comments/${commentId}/like`, {
@@ -104,6 +108,7 @@ export default function CommentSection({ recipeId }) {
     }
   };
 
+  // Navigate to user profile on click
   const handleAuthorClick = (authorId) => {
     navigate(`/profile/${authorId}`);
   };
@@ -153,8 +158,6 @@ export default function CommentSection({ recipeId }) {
                 </div>
               </div>
               <p className={styles.commentText}>{comment.content}</p>
-              {console.log(comment.likes)}
-              {console.log(user.id)}
               <div className={styles.commentActions}>
                 {user && (
                   <LikeButton

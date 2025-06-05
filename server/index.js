@@ -14,34 +14,31 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Basic middleware setup
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
+// MongoDB connection setup
 const MONGO_USERNAME = process.env.MONGO_USERNAME;
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
-
-// Temporarily using my own MongoDB Atlas cluster to test the app
-//const uri = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@crud.mqpkeon.mongodb.net/?retryWrites=true&w=majority&appName=crud`;
 const uri = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@crud.mqpkeon.mongodb.net/prod?retryWrites=true&w=majority&appName=crud`;
-console.log('MongoDB URI:', uri.replace(MONGO_PASSWORD, '****'));
 
-//mongoose.connect(uri, { dbName: 'process.env.MONGO_DATABASE' })
+// Connect to MongoDB
 mongoose.connect(uri)
-.then(() => console.log('Successfully connected to MongoDB'))
+  .then(() => console.log('Connected to MongoDB'))
   .catch((err) => {
-    console.error('Failed to connect to MongoDB:', err);
+    console.error('MongoDB connection failed:', err);
     process.exit(1);
   });
 
-// Routes
+// API routes
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userProfileRoutes); // This mounts all user profile routes under /api/users
-app.use('/api/users', userSearchRoutes); // Add user search routes
+app.use('/api/users', userProfileRoutes);
+app.use('/api/users', userSearchRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/comments', commentRoutes);
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
