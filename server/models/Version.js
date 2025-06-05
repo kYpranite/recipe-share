@@ -11,6 +11,11 @@ const versionSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
   versionNumber: {
     type: Number,
     required: true

@@ -25,7 +25,8 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
     }],
     instructions: [''],
     tags: '',
-    image: ''
+    image: '',
+    changelog: ''
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,7 +46,8 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
           ? forkedRecipe.instructions 
           : [forkedRecipe.instructions],
         tags: forkedRecipe.tags?.join(', ') || '',
-        image: forkedRecipe.image || ''
+        image: forkedRecipe.image || '',
+        changelog: ''
       });
     } else if (recipeId) {
       // Load existing recipe for editing
@@ -77,7 +79,8 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
             })),
             instructions: data.currentVersion.instructions.map(inst => inst.description),
             tags: data.tags?.join(', ') || '',
-            image: data.currentVersion.images?.[0]?.url || ''
+            image: data.currentVersion.images?.[0]?.url || '',
+            changelog: ''
           });
         } catch (err) {
           console.error('Error fetching recipe:', err);
@@ -189,7 +192,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
           },
           servings: parseInt(formData.servings),
           images: formData.image ? [{ url: formData.image, caption: formData.title }] : [],
-          changelog: forkedRecipe ? 'Forked from original recipe' : recipeId ? 'Updated recipe' : 'Initial version'
+          changelog: recipeId ? formData.changelog : forkedRecipe ? 'Forked from original recipe' : 'Initial version'
         }
       };
 
@@ -469,6 +472,23 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
             placeholder="https://example.com/image.jpg"
           />
         </div>
+
+        {recipeId && (
+          <div className={styles.formGroup}>
+            <label htmlFor="changelog">Changelog (required for updates)</label>
+            <textarea
+              id="changelog"
+              name="changelog"
+              value={formData.changelog}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              placeholder="Describe what changes you made to this version"
+              required
+              rows="3"
+              className={styles.aboutTextarea}
+            />
+          </div>
+        )}
 
         <div className={styles.buttonGroup}>
           <button

@@ -378,36 +378,62 @@ router.delete('/:id', auth, async (req, res) => {
 
 // Get version history including forks and ancestry chain
 router.get('/:id/versions', auth, async (req, res) => {
-  console.log('GET /api/recipes/:id/versions - Fetching version history and ancestry chain');
+  console.log('GET /api/recipes/:id/versions - Fetching version history');
   try {
-    let recipe = await Recipe.findById(req.params.id).populate('originalAuthor', 'name profilePicture');
+    const recipe = await Recipe.findById(req.params.id)
+      .populate({
+        path: 'versionHistory',
+        populate: {
+          path: 'author',
+          select: 'name profilePicture'
+        }
+      });
+      
     if (!recipe) {
       return res.status(404).json({ message: 'Recipe not found' });
     }
 
-    // Build ancestry chain (from root to current)
-    const ancestry = [];
-    let current = recipe;
-    while (current) {
-      ancestry.unshift({
-        _id: current._id,
-        name: current.name,
-        author: current.originalAuthor,
-        createdAt: current.createdAt
-      });
-      if (!current.forkedFrom) break;
-      current = await Recipe.findById(current.forkedFrom).populate('originalAuthor', 'name profilePicture');
-    }
+    // Sort versions by versionNumber in descending order
+    const versions = recipe.versionHistory.sort((a, b) => b.versionNumber - a.versionNumber);
 
-    // Get all versions of the current recipe
-    const versions = await Version.find({ recipe: recipe._id })
-      .populate('author', 'name profilePicture')
-      .sort({ versionNumber: -1 });
-
-    res.json({ ancestry, versions });
+    res.json({ versions });
   } catch (error) {
     console.error('Error fetching version history:', error);
     res.status(500).json({ message: 'Error fetching version history', error: error.message });
+  }
+});
+
+// Get specific version of a recipe
+router.get('/:recipeId/versions/:versionId', auth, async (req, res) => {
+  console.log('GET /api/recipes/:recipeId/versions/:versionId - Fetching specific version');
+  try {
+    const recipe = await Recipe.findById(req.params.recipeId);
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    const version = await Version.findById(req.params.versionId)
+      .populate('author', 'name profilePicture');
+
+    if (!version) {
+      return res.status(404).json({ message: 'Version not found' });
+    }
+
+    // Verify this version belongs to the recipe
+    if (version.recipe.toString() !== recipe._id.toString()) {
+      return res.status(400).json({ message: 'Version does not belong to this recipe' });
+    }
+
+    res.json({
+      ...version.toObject(),
+      recipeName: version.title,
+      recipeDescription: recipe.description,
+      recipeCuisine: recipe.cuisine,
+      recipeTags: recipe.tags
+    });
+  } catch (error) {
+    console.error('Error fetching version:', error);
+    res.status(500).json({ message: 'Error fetching version', error: error.message });
   }
 });
 

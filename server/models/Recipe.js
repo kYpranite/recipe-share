@@ -84,6 +84,7 @@ recipeSchema.methods.addVersion = async function(versionData) {
   const newVersion = await mongoose.model('Version').create({
     ...versionData,
     recipe: this._id,
+    title: this.name,
     versionNumber: this.versionHistory.length + 1,
     changelog: versionData.changelog || 'No changes specified',
   });

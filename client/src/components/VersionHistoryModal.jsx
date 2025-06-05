@@ -4,9 +4,9 @@ import styles from './VersionHistoryModal.module.css';
 const VersionHistoryModal = ({ 
   isOpen, 
   onClose, 
-  ancestry, // array of recipes from root to current
-  currentRecipeId,
-  onViewRecipe
+  versions,
+  currentVersionId,
+  onVersionSelect
 }) => {
   if (!isOpen) return null;
 
@@ -20,9 +20,9 @@ const VersionHistoryModal = ({
     });
   };
 
-  const handleView = (recipeId) => {
+  const handleVersionSelect = (version) => {
     onClose();
-    onViewRecipe(recipeId);
+    onVersionSelect(version);
   };
 
   return (
@@ -33,18 +33,21 @@ const VersionHistoryModal = ({
           <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
         <div className={styles.modalContent}>
-          {ancestry.map((recipe) => (
+          {versions.map((version) => (
             <div 
-              key={recipe._id} 
-              className={`${styles.versionItem} ${currentRecipeId === recipe._id ? styles.active : ''}`}
+              key={version._id} 
+              className={`${styles.versionItem} ${currentVersionId === version._id ? styles.active : ''}`}
             >
               <div className={styles.versionHeader}>
-                <span className={styles.versionNumber}>{recipe.name}</span>
-                <span className={styles.versionDate}>{formatDate(recipe.createdAt)}</span>
+                <span className={styles.versionNumber}>v{version.versionNumber}</span>
+                <span className={styles.versionDate}>{formatDate(version.createdAt)}</span>
+              </div>
+              <div className={styles.versionInfo}>
+                <span className={styles.changelog}>{version.changelog}</span>
               </div>
               <div className={styles.versionActions}>
                 <button 
-                  onClick={() => handleView(recipe._id)}
+                  onClick={() => handleVersionSelect(version)}
                   className={styles.viewButton}
                 >
                   View
@@ -52,11 +55,11 @@ const VersionHistoryModal = ({
               </div>
               <div className={styles.authorInfo}>
                 <img 
-                  src={recipe.author.profilePicture || '/default-avatar.png'} 
-                  alt={recipe.author.name}
+                  src={version.author.profilePicture || '/default-avatar.png'} 
+                  alt={version.author.name}
                   className={styles.authorAvatar}
                 />
-                <span className={styles.authorName}>{recipe.author.name}</span>
+                <span className={styles.authorName}>{version.author.name}</span>
               </div>
             </div>
           ))}

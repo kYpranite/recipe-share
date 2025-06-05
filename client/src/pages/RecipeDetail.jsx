@@ -123,12 +123,19 @@ export default function RecipeDetail() {
       const data = await response.json();
       setRecipe(prev => ({
         ...prev,
+        title: data.recipeName,
+        description: data.recipeDescription,
+        cuisine: data.recipeCuisine,
+        tags: data.recipeTags,
         ingredients: data.ingredients,
         instructions: data.instructions,
         prepTime: data.cookingTime?.prep?.value || 0,
         cookTime: data.cookingTime?.cook?.value || 0,
-        servings: data.servings
+        servings: data.servings,
+        image: data.images?.[0]?.url
       }));
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('Error fetching version:', err);
       setError(err.message);
@@ -284,9 +291,9 @@ export default function RecipeDetail() {
       <VersionHistoryModal
         isOpen={versionHistoryVisible}
         onClose={() => setVersionHistoryVisible(false)}
-        ancestry={ancestry}
-        currentRecipeId={id}
-        onViewRecipe={handleViewRecipe}
+        versions={versions}
+        currentVersionId={selectedVersion?._id}
+        onVersionSelect={handleViewVersion}
       />
 
       <CommentSection recipeId={id} />
