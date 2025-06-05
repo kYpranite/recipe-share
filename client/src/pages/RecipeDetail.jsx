@@ -163,6 +163,30 @@ export default function RecipeDetail() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/recipes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete recipe');
+      }
+
+      navigate('/home');
+    } catch (err) {
+      console.error('Error deleting recipe:', err);
+      setError(err.message);
+    }
+  };
+
   if (loading) {
     return <div className={styles.loading}>Loading recipe...</div>;
   }
@@ -255,12 +279,20 @@ export default function RecipeDetail() {
           <span>Fork Recipe</span>
         </button>
         {user && user.id === recipe.originalAuthor && (
-          <button 
-            className={styles.editButton} 
-            onClick={() => navigate(`/edit-recipe/${id}`)}
-          >
-            <span>Edit Recipe</span>
-          </button>
+          <>
+            <button 
+              className={styles.editButton} 
+              onClick={() => navigate(`/edit-recipe/${id}`)}
+            >
+              <span>Edit Recipe</span>
+            </button>
+            <button 
+              className={styles.deleteButton} 
+              onClick={handleDelete}
+            >
+              <span>Delete Recipe</span>
+            </button>
+          </>
         )}
         <button 
           className={styles.versionButton} 
