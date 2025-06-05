@@ -264,6 +264,10 @@ function UserSearch() {
                   src={user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'} 
                   alt={user.name}
                   className={styles.avatar}
+                  onError={(e) => {
+                    e.target.onerror = null; 
+                    e.target.src = 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png';
+                  }}
                 />
                 <div className={styles.userInfo}>
                   <h3>{user.name}</h3>
