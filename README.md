@@ -23,6 +23,10 @@ npm install
 # Install backend dependencies
 cd ../server
 npm install
+
+# Install root dependencies
+cd ..
+npm install
 ```
 
 ### Step 2: Environment Setup
@@ -35,33 +39,18 @@ touch .env
 
 2. Add the following to your `.env` file:
 ```env
-# Server Configuration
-PORT=3000
-
 # MongoDB Configuration
 MONGO_USERNAME=your_mongodb_username
 MONGO_PASSWORD=your_mongodb_password
-MONGO_DATABASE=recipe_share
-
 # JWT Configuration
 JWT_SECRET=your_secure_jwt_secret
-
-# Environment
-NODE_ENV=development
 ```
 
 ### Step 3: Start the Application
 
-1. Start the backend server:
+1. Start front and backend concurrently
 ```bash
-cd server
-npm run dev
-```
-
-2. In a new terminal, start the frontend:
-```bash
-cd client
-npm run dev
+npm run dev # in root directory
 ```
 
 3. Access the application:
