@@ -245,7 +245,7 @@ router.post('/:id/fork', auth, async (req, res) => {
       description: originalRecipe.description,
       originalAuthor: req.user.id,
       currentVersion: originalRecipe.currentVersion._id,
-      versionHistory: [originalRecipe.currentVersion._id],
+      versionHistory: originalRecipe.versionHistory,
       forkedFrom: originalRecipe._id,
       isPrivate: false,
       tags: originalRecipe.tags,

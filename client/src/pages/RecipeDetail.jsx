@@ -110,7 +110,7 @@ export default function RecipeDetail() {
   const handleViewVersion = async (version) => {
     setSelectedVersion(version);
     try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}/versions/${version._id}`, {
+      const response = await fetch(`http://localhost:3000/api/recipes/${version.recipe}/versions/${version._id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
