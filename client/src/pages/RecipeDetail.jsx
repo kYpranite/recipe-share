@@ -57,17 +57,33 @@ export default function RecipeDetail() {
 
         setRecipe(transformedRecipe);
         
-        // Fetch version history
-        const versionsResponse = await fetch(`http://localhost:3000/api/recipes/${id}/versions`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        // Dummy version history data
+        const dummyVersions = [
+          {
+            id: 'v1',
+            versionNumber: 1,
+            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+            changelog: 'Initial version',
+            author: { name: data.originalAuthor.name, profilePicture: data.originalAuthor.profilePicture }
+          },
+          {
+            id: 'v2',
+            versionNumber: 2,
+            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+            changelog: 'Updated cooking time and ingredients',
+            author: { name: data.originalAuthor.name, profilePicture: data.originalAuthor.profilePicture }
+          },
+          {
+            id: 'v3',
+            versionNumber: 3,
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+            changelog: 'Added new instructions and improved formatting',
+            author: { name: data.originalAuthor.name, profilePicture: data.originalAuthor.profilePicture }
           }
-        });
-
-        if (versionsResponse.ok) {
-          const versionsData = await versionsResponse.json();
-          setVersions(versionsData.versions || []);
-        }
+        ];
+        
+        setVersions(dummyVersions);
+        setSelectedVersion(dummyVersions[0]); // Set current version as selected
 
       } catch (err) {
         console.error('Error fetching recipe:', err);
@@ -80,56 +96,16 @@ export default function RecipeDetail() {
     fetchRecipe();
   }, [id, user]);
 
-  const handleFork = async () => {
-    if (!recipe) return;
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}/fork`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fork recipe');
-      }
-
-      const data = await response.json();
-      navigate(`/recipe/${data.recipe._id}`);
-    } catch (err) {
-      console.error('Error forking recipe:', err);
-      setError(err.message);
-    }
+  const handleViewVersion = (version) => {
+    setSelectedVersion(version);
+    // In a real implementation, this would fetch the specific version's data
+    console.log('Viewing version:', version);
   };
 
-  const handleViewVersion = async (version) => {
-    setSelectedVersion(version);
-    try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}/versions/${version._id}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch version');
-      }
-
-      const data = await response.json();
-      setRecipe(prev => ({
-        ...prev,
-        ingredients: data.ingredients,
-        instructions: data.instructions,
-        prepTime: data.cookingTime?.prep?.value || 0,
-        cookTime: data.cookingTime?.cook?.value || 0,
-        servings: data.servings
-      }));
-    } catch (err) {
-      console.error('Error fetching version:', err);
-      setError(err.message);
-    }
+  const handleFork = async () => {
+    if (!recipe) return;
+    // In a real implementation, this would create a fork
+    console.log('Forking recipe:', recipe);
   };
 
   const handleRevert = async (version) => {
@@ -137,29 +113,8 @@ export default function RecipeDetail() {
       setError('You must be logged in to revert versions');
       return;
     }
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}/revert`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ versionId: version._id })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to revert recipe');
-      }
-
-      const data = await response.json();
-      setRecipe(data.recipe);
-      setVersions(data.versions);
-      setSelectedVersion(null);
-    } catch (err) {
-      console.error('Error reverting recipe:', err);
-      setError(err.message);
-    }
+    // In a real implementation, this would revert to the selected version
+    console.log('Reverting to version:', version);
   };
 
   if (loading) {
@@ -179,18 +134,12 @@ export default function RecipeDetail() {
       <div className={styles.recipeHeader}>
         <h1>{recipe.title}</h1>
         <div className={styles.authorInfo}>
-          <img
-            src={recipe.authorAvatar || 'https://cdn-icons-png.flaticon.com/512/2922/2922510.png'}
-            alt="author avatar"
+          <img 
+            src={recipe.authorAvatar || '/default-avatar.png'} 
+            alt={recipe.author} 
             className={styles.authorAvatar}
           />
-          <span 
-            className={styles.authorName}
-            onClick={() => navigate(`/profile/${recipe.originalAuthor}`)}
-            style={{ cursor: 'pointer' }}
-          >
-            {recipe.author}
-          </span>
+          <span>{recipe.author}</span>
         </div>
       </div>
 
@@ -198,32 +147,25 @@ export default function RecipeDetail() {
         {recipe.image ? (
           <img src={recipe.image} alt={recipe.title} />
         ) : (
-          <div className={styles.placeholderImage}>No image available</div>
+          <div className={styles.noImage}>No image available</div>
         )}
       </div>
 
-      {recipe.description && (
-        <div className={styles.aboutSection}>
-          <h2>About this Recipe</h2>
-          <p>{recipe.description}</p>
-        </div>
-      )}
-
       <div className={styles.recipeInfo}>
         <div className={styles.infoItem}>
-          <span className={styles.label}>Cuisine:</span>
-          <span>{recipe.cuisine || 'Unspecified'}</span>
+          <span className={styles.label}>Cuisine</span>
+          <span>{recipe.cuisine}</span>
         </div>
         <div className={styles.infoItem}>
-          <span className={styles.label}>Prep Time:</span>
-          <span>{recipe.prepTime} minutes</span>
+          <span className={styles.label}>Prep Time</span>
+          <span>{recipe.prepTime} mins</span>
         </div>
         <div className={styles.infoItem}>
-          <span className={styles.label}>Cook Time:</span>
-          <span>{recipe.cookTime} minutes</span>
+          <span className={styles.label}>Cook Time</span>
+          <span>{recipe.cookTime} mins</span>
         </div>
         <div className={styles.infoItem}>
-          <span className={styles.label}>Servings:</span>
+          <span className={styles.label}>Servings</span>
           <span>{recipe.servings}</span>
         </div>
       </div>
@@ -263,7 +205,7 @@ export default function RecipeDetail() {
         )}
         <button 
           className={styles.versionButton} 
-          onClick={() => setVersionHistoryVisible(!versionHistoryVisible)}
+          onClick={() => setVersionHistoryVisible(true)}
         >
           <span>Version History</span>
         </button>
@@ -276,7 +218,7 @@ export default function RecipeDetail() {
         isOpen={versionHistoryVisible}
         onClose={() => setVersionHistoryVisible(false)}
         versions={versions}
-        currentVersion={selectedVersion || recipe.currentVersion}
+        currentVersion={selectedVersion}
         onVersionSelect={handleViewVersion}
         onFork={handleFork}
         onRevert={handleRevert}

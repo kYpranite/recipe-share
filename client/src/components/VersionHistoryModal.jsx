@@ -32,49 +32,53 @@ const VersionHistoryModal = ({
         </div>
         
         <div className={styles.modalContent}>
-          <div className={styles.versionList}>
-            {versions.map((version) => (
-              <div 
-                key={version.id} 
-                className={`${styles.versionItem} ${currentVersion?.id === version.id ? styles.active : ''}`}
-              >
-                <div className={styles.versionInfo}>
+          {versions.map((version) => (
+            <div 
+              key={version.id} 
+              className={`${styles.versionItem} ${currentVersion?.id === version.id ? styles.active : ''}`}
+            >
+              <div className={styles.versionInfo}>
+                <div className={styles.versionHeader}>
+                  <span className={styles.versionNumber}>Version {version.versionNumber}</span>
                   <span className={styles.versionDate}>{formatDate(version.createdAt)}</span>
-                  <div className={styles.badges}>
-                    {version.revertedFrom && (
-                      <span className={styles.revertedBadge}>Reverted</span>
-                    )}
-                    {version.isFork && (
-                      <span className={styles.forkBadge}>Forked</span>
-                    )}
+                </div>
+                <div className={styles.versionDetails}>
+                  <p className={styles.changelog}>{version.changelog}</p>
+                  <div className={styles.authorInfo}>
+                    <img 
+                      src={version.author.profilePicture || '/default-avatar.png'} 
+                      alt={version.author.name}
+                      className={styles.authorAvatar}
+                    />
+                    <span>{version.author.name}</span>
                   </div>
                 </div>
-                <div className={styles.versionActions}>
-                  <button 
-                    onClick={() => onVersionSelect(version)}
-                    className={styles.viewButton}
-                  >
-                    View
-                  </button>
-                  <button 
-                    onClick={() => onFork(version)}
-                    className={styles.forkButton}
-                  >
-                    Fork
-                  </button>
-                  {isAuthor && (
-                    <button 
-                      onClick={() => onRevert(version)}
-                      className={styles.revertButton}
-                      disabled={currentVersion?.id === version.id}
-                    >
-                      Revert
-                    </button>
-                  )}
-                </div>
               </div>
-            ))}
-          </div>
+              <div className={styles.versionActions}>
+                <button 
+                  onClick={() => onVersionSelect(version)}
+                  className={styles.viewButton}
+                >
+                  View
+                </button>
+                <button 
+                  onClick={() => onFork(version)}
+                  className={styles.forkButton}
+                >
+                  Fork
+                </button>
+                {isAuthor && (
+                  <button 
+                    onClick={() => onRevert(version)}
+                    className={styles.revertButton}
+                    disabled={currentVersion?.id === version.id}
+                  >
+                    Revert
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

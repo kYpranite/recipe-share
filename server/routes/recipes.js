@@ -283,4 +283,24 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
+// Get version history
+router.get('/:id/versions', auth, async (req, res) => {
+  console.log('GET /api/recipes/:id/versions - Fetching version history');
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    const versions = await Version.find({ recipe: recipe._id })
+      .populate('author', 'name profilePicture')
+      .sort({ versionNumber: -1 });
+
+    res.json({ versions });
+  } catch (error) {
+    console.error('Error fetching version history:', error);
+    res.status(500).json({ message: 'Error fetching version history', error: error.message });
+  }
+});
+
 export default router; 
