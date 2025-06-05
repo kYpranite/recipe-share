@@ -91,7 +91,6 @@ recipe-share/
 │   │   ├── components/     # Reusable UI components
 │   │   ├── context/        # React context providers
 │   │   ├── pages/         # Page components
-│   │   ├── assets/        # Static assets
 │   └── public/            # Public static files
 └── server/                # Backend Express application
     ├── models/            # Database models
