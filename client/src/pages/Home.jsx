@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import RecipeCard from "../components/RecipeCard";
 import styles from "./Home.module.css";
+import { API_BASE_URL } from '../config';
 
 const LOCAL_PROFILE_KEY = "dev_profile";
 
@@ -21,7 +22,7 @@ export default function Home() {
   // Fetch recent recipes from API
   const fetchRecentRecipes = async () => {
     try {
-      const API_URL = 'http://localhost:3000/api/recipes/recent';
+      const API_URL = `${API_BASE_URL}/api/recipes/recent`;
       console.log('Fetching from:', API_URL);
       const response = await fetch(API_URL, {
         headers: {
@@ -49,7 +50,7 @@ export default function Home() {
   // Fetch trending recipes from API
   const fetchTrendingRecipes = async () => {
     try {
-      const API_URL = 'http://localhost:3000/api/recipes/trending';
+      const API_URL = `${API_BASE_URL}/api/recipes/trending`;
       console.log('Fetching trending recipes from:', API_URL);
       const response = await fetch(API_URL, {
         headers: {

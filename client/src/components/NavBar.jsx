@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import styles from './NavBar.module.css';
+import { API_BASE_URL } from '../config';
 
 const LOCAL_PROFILE_KEY = 'dev_profile';
 
@@ -18,7 +19,7 @@ export default function NavBar() {
       if (!user || !token) return;
       
       try {
-        const response = await fetch('http://localhost:3000/api/users/profile', {
+        const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

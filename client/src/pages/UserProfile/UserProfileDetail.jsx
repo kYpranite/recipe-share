@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './UserProfileDetail.module.css';
+import { API_BASE_URL } from '../../config';
 
 export default function UserProfileDetail() {
   const { userId } = useParams();
@@ -24,7 +25,7 @@ export default function UserProfileDetail() {
         }
 
         // Fetch user profile
-        const profileResponse = await fetch(`http://localhost:3000/api/users/profile/${userId}`, {
+        const profileResponse = await fetch(`${API_BASE_URL}/api/users/profile/${userId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -38,7 +39,7 @@ export default function UserProfileDetail() {
         setUser(profileData);
 
         // Fetch user's recipes
-        const recipesResponse = await fetch(`http://localhost:3000/api/users/${userId}/recipes`, {
+        const recipesResponse = await fetch(`${API_BASE_URL}/api/users/${userId}/recipes`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -50,7 +51,7 @@ export default function UserProfileDetail() {
         }
 
         // Fetch followers
-        const followersResponse = await fetch(`http://localhost:3000/api/users/${userId}/followers`, {
+        const followersResponse = await fetch(`${API_BASE_URL}/api/users/${userId}/followers`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -62,7 +63,7 @@ export default function UserProfileDetail() {
         }
 
         // Fetch following
-        const followingResponse = await fetch(`http://localhost:3000/api/users/${userId}/following`, {
+        const followingResponse = await fetch(`${API_BASE_URL}/api/users/${userId}/following`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -75,7 +76,7 @@ export default function UserProfileDetail() {
 
         // Check if current user is following this user
         if (currentUser && currentUser.id !== userId) {
-          const isFollowingResponse = await fetch(`http://localhost:3000/api/users/${userId}/is-following`, {
+          const isFollowingResponse = await fetch(`${API_BASE_URL}/api/users/${userId}/is-following`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -103,7 +104,7 @@ export default function UserProfileDetail() {
 
     try {
       const endpoint = isFollowing ? 'unfollow' : 'follow';
-      const response = await fetch(`http://localhost:3000/api/users/${userId}/${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

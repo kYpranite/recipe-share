@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './EditProfile.module.css';
+import { API_BASE_URL } from '../config';
 
 export default function EditProfile() {
   const { user, token, login } = useAuth();
@@ -40,7 +41,7 @@ export default function EditProfile() {
         console.log('Fetching profile from API');
         console.log('Token available:', !!token);
         
-        const response = await fetch('http://localhost:3000/api/users/profile', {
+        const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -108,7 +109,7 @@ export default function EditProfile() {
       console.log('Saving profile to API');
       console.log('Profile data being sent:', formData);
       
-      const response = await fetch('http://localhost:3000/api/users/profile', {
+      const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

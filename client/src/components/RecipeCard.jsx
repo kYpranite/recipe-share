@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LikeButton from './LikeButton';
 import styles from '../pages/Home.module.css';
+import { API_BASE_URL } from '../config';
 
 const LOCAL_RATINGS_KEY = 'dev_ratings';
 
@@ -22,7 +23,7 @@ export default function RecipeCard({ id, title, cuisine, author, authorId, avata
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/api/recipes/${id}/likes`, {
+        const response = await fetch(`${API_BASE_URL}/api/recipes/${id}/likes`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -47,7 +48,7 @@ export default function RecipeCard({ id, title, cuisine, author, authorId, avata
     if (!user) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}/${isLiked ? 'unlike' : 'like'}`, {
+      const response = await fetch(`${API_BASE_URL}/api/recipes/${id}/${isLiked ? 'unlike' : 'like'}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });

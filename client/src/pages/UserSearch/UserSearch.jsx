@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './UserSearch.module.css';
+import { API_BASE_URL } from '../../config';
 
 function UserSearch() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +32,7 @@ function UserSearch() {
     const statusPromises = users.map(async (user) => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/users/${user._id}/is-following`,
+          `${API_BASE_URL}/api/users/${user._id}/is-following`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -71,7 +72,7 @@ function UserSearch() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/users/initial?page=1&limit=9`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/initial?page=1&limit=9`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -113,7 +114,7 @@ function UserSearch() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/search?query=${encodeURIComponent(searchTerm)}&page=1&limit=9`,
+        `${API_BASE_URL}/api/users/search?query=${encodeURIComponent(searchTerm)}&page=1&limit=9`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -152,7 +153,7 @@ function UserSearch() {
     try {
       const isFollowing = followStatus[userId];
       const endpoint = isFollowing ? 'unfollow' : 'follow';
-      const response = await fetch(`http://localhost:3000/api/users/${userId}/${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -195,8 +196,8 @@ function UserSearch() {
 
     try {
       const endpoint = searchTerm.trim()
-        ? `http://localhost:3000/api/users/search?query=${encodeURIComponent(searchTerm)}&page=${nextPage}&limit=9`
-        : `http://localhost:3000/api/users/initial?page=${nextPage}&limit=9`;
+        ? `${API_BASE_URL}/api/users/search?query=${encodeURIComponent(searchTerm)}&page=${nextPage}&limit=9`
+        : `${API_BASE_URL}/api/users/initial?page=${nextPage}&limit=9`;
 
       const response = await fetch(endpoint, {
         headers: {

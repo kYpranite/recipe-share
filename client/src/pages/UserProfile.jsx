@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SocialLinks from '../components/SocialLinks';
 import styles from './UserProfile.module.css';
+import { API_BASE_URL } from '../config';
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function UserProfile() {
 
         // Fetch user profile
         const profileResponse = await fetch(
-          'http://localhost:3000/api/users/profile',
+          `${API_BASE_URL}/api/users/profile`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -43,7 +44,7 @@ export default function UserProfile() {
 
         // Fetch user's recipes
         const recipesResponse = await fetch(
-          'http://localhost:3000/api/users/me/recipes',
+          `${API_BASE_URL}/api/users/me/recipes`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -61,7 +62,7 @@ export default function UserProfile() {
 
         // Fetch followers and following
         const followersResponse = await fetch(
-          `http://localhost:3000/api/users/${profileData._id}/followers`,
+          `${API_BASE_URL}/api/users/${profileData._id}/followers`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -76,7 +77,7 @@ export default function UserProfile() {
         }
 
         const followingResponse = await fetch(
-          `http://localhost:3000/api/users/${profileData._id}/following`,
+          `${API_BASE_URL}/api/users/${profileData._id}/following`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,

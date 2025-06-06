@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import styles from './RecipeForm.module.css';
+import { API_BASE_URL } from '../config';
 
 const LOCAL_RECIPES_KEY = 'dev_recipes';
 const LOCAL_PROFILE_KEY = 'dev_profile';
@@ -53,7 +54,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
       // Load existing recipe for editing
       const fetchRecipe = async () => {
         try {
-          const response = await fetch(`http://localhost:3000/api/recipes/${recipeId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/recipes/${recipeId}`, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -199,7 +200,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
       let response;
       if (recipeId) {
         // Update existing recipe
-        response = await fetch(`http://localhost:3000/api/recipes/${recipeId}`, {
+        response = await fetch(`${API_BASE_URL}/api/recipes/${recipeId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -212,7 +213,7 @@ export default function RecipeForm({ forkedRecipe, recipeId }) {
         if (forkedRecipe) {
           recipeData.forkedFrom = forkedRecipe.originalRecipeId || forkedRecipe.id;
         }
-        response = await fetch('http://localhost:3000/api/recipes', {
+        response = await fetch(`${API_BASE_URL}/api/recipes`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

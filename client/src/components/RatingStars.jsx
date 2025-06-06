@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import styles from './RatingStars.module.css';
+import { API_BASE_URL } from '../config';
 
 const LOCAL_RATINGS_KEY = 'dev_ratings';
 
@@ -29,7 +30,7 @@ export default function RatingStars({ recipeId, initialRating = 0, readOnly = fa
         localStorage.setItem(LOCAL_RATINGS_KEY, JSON.stringify(ratingsData));
       } else {
         // In production, call API
-        const response = await fetch(`http://localhost:3000/api/recipes/${recipeId}/rate`, {
+        const response = await fetch(`${API_BASE_URL}/api/recipes/${recipeId}/rate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

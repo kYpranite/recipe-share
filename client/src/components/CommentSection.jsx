@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './CommentSection.module.css';
 import LikeButton from './LikeButton';
+import { API_BASE_URL } from '../config';
 
 const LOCAL_COMMENTS_KEY = 'dev_comments';
 
@@ -27,7 +28,7 @@ export default function CommentSection({ recipeId }) {
   // Fetch comments from the API
   const fetchComments = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/comments/recipe/${recipeId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/comments/recipe/${recipeId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -69,7 +70,7 @@ export default function CommentSection({ recipeId }) {
         setComments(allComments[recipeId]);
       } else {
         // Post comment to API in production
-        const response = await fetch(`http://localhost:3000/api/comments/${recipeId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/comments/${recipeId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -90,7 +91,7 @@ export default function CommentSection({ recipeId }) {
   // Handle like/unlike on comments
   const handleLikeToggle = async (commentId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/comments/${commentId}/like`, {
+      const response = await fetch(`${API_BASE_URL}/api/comments/${commentId}/like`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
